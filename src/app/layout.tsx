@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: "ExcuseMeImJack Official Website",
     images: [
       {
-        url: "/api/og-image",
+        url: `${BASE_URL}/api/og-image`,
         width: 1200,
         height: 630,
         alt: "ExcuseMeImJack",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ExcuseMeImJack | Home",
     description: "Hey-yyy what's up guys! Welcome to the official ExcuseMeImJack website! Currently we are under construction but we'll be up and running real soon! Don't worry, no escaped assets here... *I think*",
-    images: ["/api/og-image"],
+    images: [`${BASE_URL}/api/og-image`],
   },
 };
 
