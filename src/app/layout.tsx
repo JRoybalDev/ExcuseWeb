@@ -13,20 +13,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-
 export const metadata: Metadata = {
   title: "ExcuseMeImJack | Home",
   description: "Hey-yyy what's up guys! Welcome to the official ExcuseMeImJack website! Currently we are under construction but we'll be up and running real soon! Don't worry, no escaped assets here... *I think*",
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL("https://excusemeimjack.com"),
   openGraph: {
     title: "ExcuseMeImJack | Home",
     description: "Hey-yyy what's up guys! Welcome to the official ExcuseMeImJack website! Currently we are under construction but we'll be up and running real soon! Don't worry, no escaped assets here... *I think*",
-    url: BASE_URL,
+    url: "https://excusemeimjack.com",
     siteName: "ExcuseMeImJack Official Website",
     images: [
       {
-        url: `${BASE_URL}/api/og-image`,
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "ExcuseMeImJack",
@@ -38,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ExcuseMeImJack | Home",
     description: "Hey-yyy what's up guys! Welcome to the official ExcuseMeImJack website! Currently we are under construction but we'll be up and running real soon! Don't worry, no escaped assets here... *I think*",
-    images: [`${BASE_URL}/api/og-image`],
+    images: ["/og-image.png"],
   },
 };
 
