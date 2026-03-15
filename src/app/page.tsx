@@ -86,7 +86,7 @@ export default function HomePage() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* Background */}
-      <div className="absolute -top-[500px] bottom-0 left-0 right-0 md:top-0">
+      <div className="absolute -top-125 bottom-0 left-0 right-0 md:top-0">
         <Image
           src={backgroundUrl}
           alt="Background"
