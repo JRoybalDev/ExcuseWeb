@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+@theme {
+  /* Light Mode - Earthy Tones */
+  --color-background: 42 33% 95%;
+  /* Soft cream */
+  --color-foreground: 30 25% 20%;
+  /* Dark brown */
+
+  --color-card: 40 40% 98%;
+  /* Off-white */
+  --color-card-foreground: 30 25% 20%;
+  /* Dark brown */
+
+  --color-popover: 40 40% 98%;
+  /* Off-white */
+  --color-popover-foreground: 30 25% 20%;
+  /* Dark brown */
+
+  --color-primary: 28 65% 45%;
+  /* Warm terracotta/clay */
+  --color-primary-foreground: 40 40% 98%;
+  /* Off-white */
+
+  --color-secondary: 35 40% 85%;
+  /* Light tan */
+  --color-secondary-foreground: 30 25% 20%;
+  /* Dark brown */
+
+  --color-muted: 35 30% 88%;
+  /* Pale beige */
+  --color-muted-foreground: 30 20% 40%;
+  /* Medium brown */
+
+  --color-accent: 30 50% 75%;
+  /* Warm sand */
+  --color-accent-foreground: 30 25% 20%;
+  /* Dark brown */
+
+  --color-destructive: 0 65% 55%;
+  /* Muted red */
+  --color-destructive-foreground: 40 40% 98%;
+  /* Off-white */
+
+  --color-border: 35 25% 75%;
+  /* Soft tan border */
+  --color-input: 35 25% 75%;
+  /* Soft tan border */
+  --color-ring: 28 65% 45%;
+  /* Terracotta ring */
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* Dark Mode - Deep Earth Tones */
+  --color-background: 25 30% 12%;
+  /* Deep brown-black */
+  --color-foreground: 40 35% 90%;
+  /* Warm off-white */
+
+  --color-card: 25 25% 16%;
+  /* Rich dark brown */
+  --color-card-foreground: 40 35% 90%;
+  /* Warm off-white */
+
+  --color-popover: 25 25% 16%;
+  /* Rich dark brown */
+  --color-popover-foreground: 40 35% 90%;
+  /* Warm off-white */
+
+  --color-primary: 28 70% 55%;
+  /* Brighter terracotta */
+  --color-primary-foreground: 25 25% 16%;
+  /* Dark brown */
+
+  --color-secondary: 30 20% 25%;
+  /* Dark warm gray */
+  --color-secondary-foreground: 40 35% 90%;
+  /* Warm off-white */
+
+  --color-muted: 30 20% 22%;
+  /* Muted dark brown */
+  --color-muted-foreground: 35 25% 65%;
+  /* Light brown-gray */
+
+  --color-accent: 30 35% 35%;
+  /* Medium warm brown */
+  --color-accent-foreground: 40 35% 90%;
+  /* Warm off-white */
+
+  --color-destructive: 0 60% 50%;
+  /* Warm red */
+  --color-destructive-foreground: 40 35% 90%;
+  /* Warm off-white */
+
+  --color-border: 30 20% 28%;
+  /* Dark warm border */
+  --color-input: 30 20% 28%;
+  /* Dark warm border */
+  --color-ring: 28 70% 55%;
+  /* Bright terracotta */
+}
+
+* {
+  border-color: hsl(var(--color-border));
+}
+
+body {
+  background-color: hsl(var(--color-background));
+  color: hsl(var(--color-foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Custom scrollbar for earthy theme */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--color-muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--color-primary));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(28 65% 35%);
+}
