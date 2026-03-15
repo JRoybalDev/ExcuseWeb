@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Futura ICG";
+  src: url("/fonts/Futura ICG Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Futura ICG";
+  src: url("/fonts/Futura ICG Demi Regular.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+body {
+  background-color: hsl(var(--color-background));
+  color: hsl(var(--color-foreground));
+  font-family: var(--font-futura);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+@theme {
+  /* ... your existing theme ... */
+  --font-futura: "Futura ICG", sans-serif;
+}
+
 @theme {
   /* Light Mode - Earthy Tones */
   --color-background: 42 33% 95%;
