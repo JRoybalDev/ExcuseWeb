@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaYoutube, FaTwitch, FaTiktok, FaTwitter, FaInstagram } from "react-icons/fa";
+import { FaYoutube, FaTwitch, FaTiktok, FaTwitter, FaInstagram, FaDiscord } from "react-icons/fa";
 import WeeklySchedule from "@/components/WeeklySchedule";
 
 type YouTubeVideo = {
@@ -13,10 +13,18 @@ type YouTubeVideo = {
   url: string;
 };
 
+const getProxiedUrl = (url: string) => {
+  if (url.includes("arcon-api.duckdns.org")) {
+    return `/api/proxy?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+};
+
 export default function HomePage() {
-  const logoUrl = "https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/ChannelArt/newpp_circle_transparent.png";
-  const backgroundUrl = "https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/Backgrounds/20251207111736_1.jpg";
+  const logoUrl = getProxiedUrl("https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/ChannelArt/newpp_circle_transparent.png");
+  const backgroundUrl = getProxiedUrl("https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/Backgrounds/20251207111736_1.jpg");
   const discordUrl = "https://discord.gg/fKW2eCsqqR";
+  const qrCodeUrl = getProxiedUrl("https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/WeeklySchedule/discordqr.png");
 
   const socialLinks = [
     { name: "YouTube", url: "https://youtube.com/@ExcuseMeImJack", icon: <FaYoutube className="h-6 w-6" /> },
@@ -24,6 +32,7 @@ export default function HomePage() {
     { name: "TikTok", url: "https://www.tiktok.com/@excusemeimjack", icon: <FaTiktok className="h-6 w-6" /> },
     { name: "X", url: "https://x.com/excusemeimjack", icon: <FaTwitter className="h-6 w-6" /> },
     { name: "Instagram", url: "https://www.instagram.com/excusemeimjack", icon: <FaInstagram className="h-6 w-6" /> },
+    { name: "Discord", url: discordUrl, icon: <FaDiscord className="h-6 w-6" /> },
   ];
 
   // == SCHEDULE DATA: edit these entries ==
@@ -34,7 +43,7 @@ export default function HomePage() {
       time: "",
       type: "NONE",
       title: "Custom Challenge Mode #3",
-      thumbnailUrl: "https://placehold.co/400x225/2a1a10/c47a45?text=Stream",
+      thumbnailUrl: getProxiedUrl("https://placehold.co/400x225/2a1a10/c47a45?text=Stream"),
     },
     {
       day: "WED",
@@ -42,7 +51,7 @@ export default function HomePage() {
       time: "12PM PDT",
       type: "YOUTUBE VIDEO",
       title: "Nusa Tenggara Outbreak Challenge",
-      thumbnailUrl: "https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/Backgrounds/challengemode1.jpg",
+      thumbnailUrl: getProxiedUrl("https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/Backgrounds/challengemode1.jpg"),
     },
     {
       day: "FRI",
@@ -50,7 +59,7 @@ export default function HomePage() {
       time: "12PM PDT",
       type: "TWITCH STREAM",
       title: "DIN Sanctuary Stream",
-      thumbnailUrl: "https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/Backgrounds/20260309122731_1.jpg",
+      thumbnailUrl: getProxiedUrl("https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/Backgrounds/20260309122731_1.jpg"),
     },
     {
       day: "SAT",
@@ -58,7 +67,7 @@ export default function HomePage() {
       time: "12PM PDT",
       type: "YOUTUBE STREAM",
       title: "Jurassic Park: Japan Stream",
-      thumbnailUrl: "https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/Backgrounds/20251207111736_1.jpg",
+      thumbnailUrl: getProxiedUrl("https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/Backgrounds/20251207111736_1.jpg"),
     },
   ];
   // ========================================
@@ -144,7 +153,7 @@ export default function HomePage() {
               entries={scheduleEntries}
               nextRemakePercent={0}
               discordUrl={discordUrl}
-              qrCodeUrl="https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/WeeklySchedule/discord.png"
+              qrCodeUrl={qrCodeUrl}
             />
           </div>
 
