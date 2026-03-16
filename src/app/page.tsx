@@ -25,6 +25,7 @@ export default function HomePage() {
   const backgroundUrl = getProxiedUrl("https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/Backgrounds/20251207111736_1.jpg");
   const discordUrl = "https://discord.gg/fKW2eCsqqR";
   const qrCodeUrl = getProxiedUrl("https://arcon-api.duckdns.org:7777/content/ExcuseMeImJack/WeeklySchedule/discordqr.png");
+  const nextRemakePercent = 0;
 
   const socialLinks = [
     { name: "YouTube", url: "https://youtube.com/@ExcuseMeImJack", icon: <FaYoutube className="h-6 w-6" /> },
@@ -151,7 +152,7 @@ export default function HomePage() {
           <div className="mb-12">
             <WeeklySchedule
               entries={scheduleEntries}
-              nextRemakePercent={0}
+              nextRemakePercent={nextRemakePercent}
               discordUrl={discordUrl}
               qrCodeUrl={qrCodeUrl}
             />
