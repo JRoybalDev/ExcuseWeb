@@ -102,7 +102,7 @@ export default function WeeklySchedule({
                 alt="QR Code"
                 width={90}
                 height={90}
-                className="rounded-md my-2"
+                className="rounded-md my-2 hover:cursor-pointer transition-all duration-300 hover:scale-105"
                 unoptimized
               />
             ) : (
