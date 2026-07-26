@@ -8,8 +8,8 @@ import {
   type ScheduleEntryType
 } from "@fullstack-template/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type FormEvent, useEffect, useState } from "react";
-import { FiExternalLink, FiLock, FiLogOut, FiPlus, FiSave, FiTrash2 } from "react-icons/fi";
+import { type FormEvent, useEffect, useRef, useState } from "react";
+import { FiChevronDown, FiEdit2, FiExternalLink, FiLock, FiLogOut, FiPlus, FiSave, FiTrash2 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { apiClient } from "../shared/apiClient";
 import { setDocumentTitle, siteConfig } from "../shared/siteConfig";
@@ -62,6 +62,7 @@ export function Dashboard() {
 
   const [rows, setRows] = useState<ScheduleEntry[] | null>(null);
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set());
+  const [editingIds, setEditingIds] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [actionError, setActionError] = useState("");
@@ -99,6 +100,18 @@ export function Dashboard() {
     markDirty(id);
   }
 
+  function toggleRowEditing(id: string) {
+    setEditingIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
   const createEntry = useMutation({
     mutationFn: (input: DraftEntry) => apiClient.schedule.create(adminKey, input),
     onSuccess: (created) => {
@@ -117,6 +130,11 @@ export function Dashboard() {
       setActionError("");
       setRows((current) => current?.filter((row) => row.id !== id) ?? current);
       setDirtyIds((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+      setEditingIds((current) => {
         const next = new Set(current);
         next.delete(id);
         return next;
@@ -188,6 +206,13 @@ export function Dashboard() {
       setActionError(firstError);
     } else {
       setSaveMessage("Saved.");
+      setEditingIds((current) => {
+        const next = new Set(current);
+        for (const id of idsToSave) {
+          next.delete(id);
+        }
+        return next;
+      });
       invalidateSchedule();
     }
   }
@@ -234,6 +259,9 @@ export function Dashboard() {
               <ScheduleRow
                 key={entry.id}
                 entry={entry}
+                isEditing={editingIds.has(entry.id)}
+                isDirty={dirtyIds.has(entry.id)}
+                onToggleEdit={() => toggleRowEditing(entry.id)}
                 onChangeDay={(dayOfWeek) => updateRowField(entry.id, { dayOfWeek })}
                 onChangeTime={(time) => updateRowField(entry.id, { time })}
                 onChangeType={(type) => updateRowField(entry.id, { type })}
@@ -245,59 +273,60 @@ export function Dashboard() {
 
             {addingEntry ? (
               <form className="schedule-add-form" onSubmit={submitDraft}>
-                <div className="schedule-add-form__fields">
-                  <label>
+                <div className="schedule-add-form__row">
+                  <label className="schedule-add-form__field schedule-add-form__field--day">
                     <span>Day</span>
-                    <select value={draftEntry.dayOfWeek} onChange={(event) => setDraftEntry((c) => ({ ...c, dayOfWeek: event.target.value as ScheduleDay }))}>
-                      {scheduleDayValues.map((day) => (
-                        <option key={day} value={day}>
-                          {scheduleDayLabels[day]}
-                        </option>
-                      ))}
-                    </select>
+                    <SelectDropdown
+                      value={draftEntry.dayOfWeek}
+                      options={scheduleDayValues.map((day) => ({ value: day, label: scheduleDayLabels[day] }))}
+                      onChange={(dayOfWeek) => setDraftEntry((c) => ({ ...c, dayOfWeek }))}
+                    />
                   </label>
-                  <label>
+                  <label className="schedule-add-form__field schedule-add-form__field--time">
                     <span>Time</span>
                     <input
-                      placeholder="10:00 AM PST"
+                      type="time"
                       value={draftEntry.time}
                       onChange={(event) => setDraftEntry((c) => ({ ...c, time: event.target.value }))}
                     />
                   </label>
-                  <label>
+                  <label className="schedule-add-form__field schedule-add-form__field--type">
                     <span>Type</span>
-                    <select value={draftEntry.type} onChange={(event) => setDraftEntry((c) => ({ ...c, type: event.target.value as ScheduleEntryType }))}>
-                      {scheduleEntryTypeValues.map((type) => (
-                        <option key={type} value={type}>
-                          {scheduleEntryTypeLabels[type]}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    <span>Title</span>
-                    <input
-                      placeholder="Episode title"
-                      value={draftEntry.title}
-                      onChange={(event) => setDraftEntry((c) => ({ ...c, title: event.target.value }))}
+                    <SelectDropdown
+                      value={draftEntry.type}
+                      options={scheduleEntryTypeValues.map((type) => ({ value: type, label: scheduleEntryTypeLabels[type] }))}
+                      onChange={(type) => setDraftEntry((c) => ({ ...c, type }))}
                     />
                   </label>
                 </div>
-                <ThumbnailSlot url={draftEntry.thumbnailUrl} onUpload={(file) => void saveDraftThumbnail(file)} />
-                <div className="schedule-add-form__actions">
-                  <button
-                    className="admin-button admin-button--secondary"
-                    type="button"
-                    onClick={() => {
-                      setAddingEntry(false);
-                      setDraftEntry(emptyDraft);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button className="admin-button admin-button--primary" type="submit" disabled={createEntry.isPending}>
-                    {createEntry.isPending ? "Adding..." : "Add entry"}
-                  </button>
+                <label className="schedule-add-form__field schedule-add-form__field--title">
+                  <span>Title</span>
+                  <input
+                    placeholder="Episode title"
+                    value={draftEntry.title}
+                    onChange={(event) => setDraftEntry((c) => ({ ...c, title: event.target.value }))}
+                  />
+                </label>
+                <div className="schedule-add-form__footer">
+                  <div className="schedule-add-form__field schedule-add-form__field--thumb">
+                    <span>Thumbnail</span>
+                    <ThumbnailSlot url={draftEntry.thumbnailUrl} onUpload={(file) => void saveDraftThumbnail(file)} />
+                  </div>
+                  <div className="schedule-add-form__actions">
+                    <button
+                      className="admin-button admin-button--secondary"
+                      type="button"
+                      onClick={() => {
+                        setAddingEntry(false);
+                        setDraftEntry(emptyDraft);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button className="admin-button admin-button--primary" type="submit" disabled={createEntry.isPending}>
+                      {createEntry.isPending ? "Adding..." : "Add entry"}
+                    </button>
+                  </div>
                 </div>
               </form>
             ) : (
@@ -323,8 +352,99 @@ export function Dashboard() {
   );
 }
 
+function SelectDropdown<T extends string>({
+  value,
+  options,
+  onChange,
+  className
+}: {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const selected = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function onPointerDown(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div className={className ? `select-dropdown ${className}` : "select-dropdown"} ref={containerRef}>
+      <button
+        type="button"
+        className="select-dropdown__trigger"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>{selected?.label ?? ""}</span>
+        <FiChevronDown aria-hidden className="select-dropdown__caret" />
+      </button>
+      {open ? (
+        <ul className="select-dropdown__menu" role="listbox">
+          {options.map((option) => (
+            <li key={option.value}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={option.value === value}
+                className={
+                  option.value === value ? "select-dropdown__option select-dropdown__option--active" : "select-dropdown__option"
+                }
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+              >
+                {option.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+function formatTimeDisplay(time: string): string {
+  const match = /^(\d{2}):(\d{2})$/.exec(time);
+  if (!match) {
+    return "No time set";
+  }
+
+  const date = new Date(2000, 0, 1, Number(match[1]), Number(match[2]));
+  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
 function ScheduleRow({
   entry,
+  isEditing,
+  isDirty,
+  onToggleEdit,
   onChangeDay,
   onChangeTime,
   onChangeType,
@@ -333,6 +453,9 @@ function ScheduleRow({
   onDelete
 }: {
   entry: ScheduleEntry;
+  isEditing: boolean;
+  isDirty: boolean;
+  onToggleEdit: () => void;
   onChangeDay: (day: ScheduleDay) => void;
   onChangeTime: (time: string) => void;
   onChangeType: (type: ScheduleEntryType) => void;
@@ -340,27 +463,47 @@ function ScheduleRow({
   onUploadThumbnail: (file: File) => void;
   onDelete: () => void;
 }) {
+  if (!isEditing) {
+    return (
+      <div className="schedule-row schedule-row--preview">
+        <span className="schedule-row__day-badge">{scheduleDayLabels[entry.dayOfWeek]}</span>
+        <span className="schedule-row__preview-cell">{formatTimeDisplay(entry.time)}</span>
+        <span className="schedule-row__preview-cell">{scheduleEntryTypeLabels[entry.type]}</span>
+        <span className="schedule-row__preview-title">
+          <span className="schedule-row__preview-title-text">{entry.title || "Untitled"}</span>
+          {isDirty ? <span className="schedule-row__unsaved">Unsaved</span> : null}
+        </span>
+        <div className="schedule-row__preview-thumb">{entry.thumbnailUrl ? <img src={entry.thumbnailUrl} alt="" /> : <span>Img</span>}</div>
+        <div className="schedule-row__preview-actions">
+          <button className="schedule-row__edit" type="button" aria-label="Edit entry" onClick={onToggleEdit}>
+            <FiEdit2 aria-hidden />
+          </button>
+          <button className="schedule-row__delete" type="button" aria-label="Delete entry" onClick={onDelete}>
+            <FiTrash2 aria-hidden />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="schedule-row">
-      <select className="schedule-row__day" value={entry.dayOfWeek} onChange={(event) => onChangeDay(event.target.value as ScheduleDay)}>
-        {scheduleDayValues.map((day) => (
-          <option key={day} value={day}>
-            {scheduleDayLabels[day]}
-          </option>
-        ))}
-      </select>
-      <input value={entry.time} onChange={(event) => onChangeTime(event.target.value)} placeholder="Time" />
-      <select value={entry.type} onChange={(event) => onChangeType(event.target.value as ScheduleEntryType)}>
-        {scheduleEntryTypeValues.map((type) => (
-          <option key={type} value={type}>
-            {scheduleEntryTypeLabels[type]}
-          </option>
-        ))}
-      </select>
+      <SelectDropdown
+        className="schedule-row__day"
+        value={entry.dayOfWeek}
+        options={scheduleDayValues.map((day) => ({ value: day, label: scheduleDayLabels[day] }))}
+        onChange={onChangeDay}
+      />
+      <input type="time" value={entry.time} onChange={(event) => onChangeTime(event.target.value)} />
+      <SelectDropdown
+        value={entry.type}
+        options={scheduleEntryTypeValues.map((type) => ({ value: type, label: scheduleEntryTypeLabels[type] }))}
+        onChange={onChangeType}
+      />
       <input value={entry.title} onChange={(event) => onChangeTitle(event.target.value)} placeholder="Title" />
       <ThumbnailSlot url={entry.thumbnailUrl} onUpload={onUploadThumbnail} compact />
-      <button className="schedule-row__delete" type="button" aria-label="Delete entry" onClick={onDelete}>
-        <FiTrash2 aria-hidden />
+      <button className="schedule-row__done" type="button" aria-label="Done editing" onClick={onToggleEdit}>
+        Done
       </button>
     </div>
   );

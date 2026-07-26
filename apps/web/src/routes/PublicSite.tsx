@@ -1,4 +1,4 @@
-import { scheduleDayLabels, scheduleDayValues, scheduleEntryTypeLabels, type ScheduleDay, type ScheduleEntry } from "@fullstack-template/schema";
+import { scheduleDayLabels, scheduleEntryTypeLabels, type ScheduleDay } from "@fullstack-template/schema";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FaDiscord, FaInstagram, FaTiktok, FaTwitch, FaTwitter, FaYoutube } from "react-icons/fa";
@@ -22,17 +22,81 @@ const SOCIAL_LINKS = [
   { name: "Discord", url: DISCORD_URL, icon: FaDiscord }
 ];
 
-function nextOccurrence(day: ScheduleDay): Date {
-  const jsDayIndex: Record<ScheduleDay, number> = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
-  const now = new Date();
-  const diff = (jsDayIndex[day] - now.getDay() + 7) % 7;
-  const result = new Date(now);
-  result.setDate(now.getDate() + diff);
-  return result;
+// The channel schedules in Pacific time; every displayed day/date/time is derived from the
+// resulting absolute instant so it lands on the correct calendar day for each viewer.
+const STREAM_TIMEZONE = "America/Los_Angeles";
+
+const jsDayIndexToScheduleDay: ScheduleDay[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+const scheduleDayToJsIndex: Record<ScheduleDay, number> = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+
+function zonedTimeToUtc(year: number, month: number, day: number, hours: number, minutes: number, timeZone: string): Date {
+  const utcGuess = new Date(Date.UTC(year, month, day, hours, minutes));
+  const tzDate = new Date(utcGuess.toLocaleString("en-US", { timeZone }));
+  const utcDate = new Date(utcGuess.toLocaleString("en-US", { timeZone: "UTC" }));
+  return new Date(utcGuess.getTime() - (tzDate.getTime() - utcDate.getTime()));
+}
+
+function getZonedDateParts(date: Date, timeZone: string): { year: number; month: number; day: number; weekday: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short"
+  }).formatToParts(date);
+  const weekdayIndex: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+
+  let year = 0;
+  let month = 0;
+  let day = 0;
+  let weekday = 0;
+
+  for (const part of parts) {
+    if (part.type === "year") {
+      year = Number(part.value);
+    } else if (part.type === "month") {
+      month = Number(part.value) - 1;
+    } else if (part.type === "day") {
+      day = Number(part.value);
+    } else if (part.type === "weekday") {
+      weekday = weekdayIndex[part.value] ?? 0;
+    }
+  }
+
+  return { year, month, day, weekday };
+}
+
+// Finds the next absolute instant (this week, in Pacific-calendar terms) that a given
+// day-of-week + wall-clock time occurs, so it can then be re-derived into any viewer's local day/time.
+function nextOccurrenceInstant(day: ScheduleDay, time: string, now: Date): { instant: Date; hasTime: boolean } {
+  const match = /^(\d{2}):(\d{2})$/.exec(time);
+  const hasTime = match !== null;
+  // Anchor day-less entries at Pacific noon so the local day rarely shifts for typical viewer offsets.
+  const hours = match ? Number(match[1]) : 12;
+  const minutes = match ? Number(match[2]) : 0;
+
+  const pacificToday = getZonedDateParts(now, STREAM_TIMEZONE);
+  const diff = (scheduleDayToJsIndex[day] - pacificToday.weekday + 7) % 7;
+  const targetDateGuess = new Date(Date.UTC(pacificToday.year, pacificToday.month, pacificToday.day + diff));
+
+  const instant = zonedTimeToUtc(
+    targetDateGuess.getUTCFullYear(),
+    targetDateGuess.getUTCMonth(),
+    targetDateGuess.getUTCDate(),
+    hours,
+    minutes,
+    STREAM_TIMEZONE
+  );
+
+  return { instant, hasTime };
 }
 
 function formatDate(date: Date) {
   return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+function formatLocalTime(instant: Date): string {
+  return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(instant);
 }
 
 export function PublicSite() {
@@ -56,10 +120,11 @@ export function PublicSite() {
     queryFn: () => apiClient.youtube.popular()
   });
 
-  const entriesByDay = new Map<ScheduleDay, ScheduleEntry>();
-  for (const entry of schedule.data ?? []) {
-    entriesByDay.set(entry.dayOfWeek, entry);
-  }
+  const now = new Date();
+  const scheduledEntries = (schedule.data ?? [])
+    .map((entry) => ({ entry, ...nextOccurrenceInstant(entry.dayOfWeek, entry.time, now) }))
+    .sort((a, b) => a.instant.getTime() - b.instant.getTime());
+  const hasScheduleEntries = scheduledEntries.length > 0;
 
   return (
     <div className="coming-soon-page">
@@ -83,32 +148,39 @@ export function PublicSite() {
 
         <section className="schedule-panel">
           <h2 className="schedule-title">Weekly Schedule</h2>
-          <div className="schedule-grid">
-            {scheduleDayValues.map((day) => {
-              const entry = entriesByDay.get(day);
-              const date = formatDate(nextOccurrence(day));
+          <div className="schedule-layout">
+            <div className="schedule-grid">
+              {hasScheduleEntries ? (
+                scheduledEntries.map(({ entry, instant, hasTime }) => {
+                  const localDay = jsDayIndexToScheduleDay[instant.getDay()]!;
 
-              return (
-                <div key={day} className={entry ? "schedule-day-card" : "schedule-day-card schedule-day-card--empty"}>
-                  <div className="schedule-day-header">
-                    <span className="schedule-day-abbr">{scheduleDayLabels[day]}</span>
-                    <span className="schedule-day-meta">
-                      <span>{date}</span>
-                      {entry?.time ? <span>{entry.time}</span> : null}
-                    </span>
-                  </div>
-                  {entry?.title ? (
-                    <div className="schedule-day-body">
-                      <p className="schedule-day-entry-title">{entry.title}</p>
-                      <div className="schedule-day-thumb">
-                        {entry.thumbnailUrl ? <img src={entry.thumbnailUrl} alt="" /> : null}
+                  return (
+                    <div key={entry.id} className="schedule-day-card">
+                      <div className="schedule-day-header">
+                        <span className="schedule-day-abbr">{scheduleDayLabels[localDay]}</span>
+                        <span className="schedule-day-meta">
+                          <span>{formatDate(instant)}</span>
+                          {hasTime ? <span>{formatLocalTime(instant)}</span> : null}
+                        </span>
                       </div>
-                      <span className="schedule-day-badge">{scheduleEntryTypeLabels[entry.type].toUpperCase()}</span>
+                      {entry.title ? (
+                        <div className="schedule-day-body">
+                          <p className="schedule-day-entry-title">{entry.title}</p>
+                          <div className="schedule-day-thumb">
+                            {entry.thumbnailUrl ? <img src={entry.thumbnailUrl} alt="" /> : null}
+                          </div>
+                          <span className="schedule-day-badge">{scheduleEntryTypeLabels[entry.type].toUpperCase()}</span>
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                  );
+                })
+              ) : (
+                <div className="schedule-empty-state">
+                  <p>No items this week!</p>
                 </div>
-              );
-            })}
+              )}
+            </div>
 
             <div className="paddock-card">
               <span className="paddock-card__label">Join the</span>

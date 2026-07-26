@@ -175,7 +175,7 @@ export const SiteDraftSchema = SiteSchema.omit({
 export const SiteListSchema = z.array(SiteSchema);
 
 export const scheduleDayValues = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
-export const scheduleEntryTypeValues = ["video", "youtube_stream", "twitch_stream"] as const;
+export const scheduleEntryTypeValues = ["video", "youtube_stream", "twitch_stream", "members_video", "members_stream"] as const;
 
 export const scheduleDayLabels: Record<(typeof scheduleDayValues)[number], string> = {
   mon: "MON",
@@ -190,7 +190,9 @@ export const scheduleDayLabels: Record<(typeof scheduleDayValues)[number], strin
 export const scheduleEntryTypeLabels: Record<(typeof scheduleEntryTypeValues)[number], string> = {
   video: "Video",
   youtube_stream: "YouTube Stream",
-  twitch_stream: "Twitch Stream"
+  twitch_stream: "Twitch Stream",
+  members_video: "Members-Only Video",
+  members_stream: "Members-Only Stream"
 };
 
 export const ScheduleEntrySchema = z.object({
