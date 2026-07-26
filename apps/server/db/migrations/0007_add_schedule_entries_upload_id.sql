@@ -1,0 +1,2 @@
+ALTER TABLE "schedule_entries" ADD COLUMN "upload_id" uuid;--> statement-breakpoint
+ALTER TABLE "schedule_entries" ADD CONSTRAINT "schedule_entries_upload_id_uploads_id_fk" FOREIGN KEY ("upload_id") REFERENCES "public"."uploads"("id") ON DELETE set null ON UPDATE no action;

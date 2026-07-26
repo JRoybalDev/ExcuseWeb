@@ -1,65 +1,61 @@
-# 🛡️ Ultimate Next.js Starter
+# ExcuseMeImJack — Web
 
-A high-performance, aesthetically refined starter kit built with **Next.js 16**, **Better Auth**, and **Prisma**. This template features a custom "Solid Earthy" theme designed for modern, professional web applications.
+Placeholder "Coming Soon" site and schedule dashboard for ExcuseMeImJack, built on the [fullstack-template-v1](https://github.com/JRoybalDev/fullstack-template-v1) stack.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- **Framework:** Next.js 16 (App Router)
-- **Runtime:** React 19
-- **Auth:** Better Auth v1.4+
-- **Database:** Prisma ORM (PostgreSQL)
-- **Styling:** Tailwind CSS 4 & Lucide Icons
-- **Forms:** React Hook Form & Zod
-- **Notifications:** Sonner
+- **Runtime:** Bun
+- **API:** Hono, Drizzle ORM, Postgres
+- **Web:** React 19, Vite, React Router, TanStack Query
+- **Shared schema:** Zod (`packages/schema`)
+- **Auth:** admin-key (single dashboard password)
 
-## ✨ Key Features
+## Project Structure
 
-- **Custom UI System:** A warm, parchment-inspired palette using `#fdfaf7`, `#c9ada7`, and `#4a331f`.
-- **Pre-built Auth:** Fully styled Sign In and Sign Up modals with client-side validation.
-- **Client-Centric:** Optimized for client-side state management and interactive components.
-- **Type Safety:** Full TypeScript integration across the database and API layers.
+```txt
+apps/
+  web/       Public "Coming Soon" page + schedule-only admin dashboard
+  server/    Bun + Hono API: schedule CRUD, YouTube feed, uploads
+packages/
+  schema/    Shared Zod schemas and types
+api/         Vercel Bun Function entrypoint (re-exports the Hono app)
+```
 
-## 🚀 Getting Started
+## Local Setup
 
-### 1. Installation
 ```bash
-npm install
+bun install
+cd packages/schema && bun install
+cd ../../apps/server && bun install
+cd ../web && bun install
+cd ../..
 ```
 
-### 2. Environment Setup
-Create a `.env` file in the root directory:
-```
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/your_db"
+Copy `.env.example` to `.env` and fill in `DATABASE_URL`, `ADMIN_KEY`, `YOUTUBE_API_KEY`, and `YOUTUBE_CHANNEL_ID`.
 
-# Better Auth
-BETTER_AUTH_SECRET="your_secret_key"
-BETTER_AUTH_URL="http://localhost:3000"
-```
+Run migrations against your Postgres instance:
 
-### 3. Database Initialization
 ```bash
-npx prisma generate
-npx prisma db push
+cd apps/server
+bunx drizzle-kit migrate
+cd ../..
 ```
 
-### 4. Run Development Server
+Start the stack:
+
 ```bash
-npm run dev
+bun run dev
 ```
 
-## 📁 Project Structure
-- `app/` - Next.js App Router and API routes.
-- `components/auth/` - Custom-styled Sign In, Sign Up, and User Navigation.
-- `components/ui/` - Core UI primitives (Cards, Buttons, Inputs).
-- `lib/` - Shared configurations for Better Auth and Prisma.
+- Public site: `http://localhost:5173`
+- Dashboard: `http://localhost:5173/dashboard` (password = `ADMIN_KEY`)
+- API health: `http://localhost:3001/health`
+- API docs: `http://localhost:3001/docs`
 
-## 📜 Scripts
-- `npm run dev` - Start development server.
-- `npm run build` - Build for production.
-- `npm run start` - Start production server.
-- `npm run lint` - Run ESLint.
+## Deployment
 
-Built as a foundation for scalable, high-quality Next.js applications.
-# ultimate-starter
-# ExcuseWeb
+Deploys as a single Vercel project: `apps/web` builds to static assets, and `api/index.ts` runs the Hono API as a Vercel Bun Function (see `vercel.json`). Set `STORAGE_DRIVER=cloudinary` and the `CLOUDINARY_*` env vars in production — Vercel Functions have a read-only filesystem, so local upload storage only works in dev.
+
+## Scope
+
+This build covers exactly two screens per the current design handoff: the public Coming Soon page and a schedule-only admin dashboard. The rest of the full site (Home, Content, Community, etc.) is a later, separate handoff — the underlying template's generic records/branding/uploads/users infrastructure is already in place for when that work starts.

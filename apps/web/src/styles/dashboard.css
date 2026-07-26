@@ -1,0 +1,435 @@
+.admin-gate {
+  align-items: center;
+  color: var(--text);
+  display: flex;
+  font-family: var(--font-body);
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 28px;
+  position: relative;
+}
+
+.admin-gate-bg {
+  background-position: center;
+  background-size: cover;
+  filter: blur(2px);
+  inset: 0;
+  position: fixed;
+  transform: scale(1.05);
+  z-index: 0;
+}
+
+.admin-gate-scrim {
+  background:
+    radial-gradient(ellipse 900px 500px at 50% 0%, rgba(196, 151, 110, 0.12), transparent 62%),
+    linear-gradient(180deg, rgba(16, 11, 9, 0.72) 0%, rgba(16, 11, 9, 0.88) 100%);
+  inset: 0;
+  position: fixed;
+  z-index: 1;
+}
+
+.admin-gate__panel {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 400px;
+  padding: 36px;
+  position: relative;
+  text-align: center;
+  width: 100%;
+  z-index: 2;
+}
+
+.admin-gate__logo {
+  border-radius: 50%;
+  height: 64px;
+  object-fit: cover;
+  width: 64px;
+}
+
+.admin-gate__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-gate__copy h1 {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.admin-gate__copy p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.admin-gate__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  width: 100%;
+}
+
+.admin-gate__field span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-gate__field input {
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  padding: 12px 14px;
+}
+
+.admin-gate__submit {
+  width: 100%;
+}
+
+.admin-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.admin-dashboard {
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+.admin-header {
+  align-items: center;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 12px 22px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-header__brand {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.admin-header__mark {
+  align-items: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  border-radius: 10px;
+  color: #fffdf9;
+  display: flex;
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  font-weight: 800;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.admin-header__name {
+  font-family: var(--font-head);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.admin-tag {
+  background: var(--accent-wash);
+  border-radius: var(--radius-pill);
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  text-transform: uppercase;
+}
+
+.admin-header__actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.admin-header__link {
+  align-items: center;
+  color: var(--text);
+  display: inline-flex;
+  font-size: 0.84rem;
+  font-weight: 600;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.admin-status-pill {
+  align-items: center;
+  background: var(--ok-soft);
+  border-radius: var(--radius-pill);
+  color: var(--ok);
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 8px;
+  padding: 5px 12px;
+}
+
+.admin-status-pill__dot {
+  background: var(--ok);
+  border-radius: 50%;
+  height: 8px;
+  width: 8px;
+}
+
+.admin-button {
+  align-items: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  font-weight: 700;
+  gap: 6px;
+  padding: 9px 16px;
+}
+
+.admin-button--secondary {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.admin-button--primary {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fffdf9;
+}
+
+.admin-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.admin-main {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  padding: 36px 22px 60px;
+}
+
+.admin-main__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 720px;
+  width: 100%;
+}
+
+.admin-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-eyebrow {
+  color: var(--muted-2);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-intro h1 {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.admin-intro p {
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin: 0;
+}
+
+.schedule-editor-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.schedule-row {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 72px 100px 150px 1fr 64px 34px;
+}
+
+.schedule-row select,
+.schedule-row input {
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.schedule-row__day {
+  background: var(--accent-wash);
+  font-family: var(--font-head);
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.schedule-row__delete {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  cursor: pointer;
+  display: flex;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.thumbnail-slot {
+  aspect-ratio: 16 / 9;
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  color: var(--muted-2);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.72rem;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+}
+
+.thumbnail-slot img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.thumbnail-slot--compact {
+  width: 110px;
+}
+
+.thumbnail-slot input {
+  display: none;
+}
+
+.schedule-add-form {
+  background: var(--surface-2);
+  border: 1px dashed var(--line-2);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+}
+
+.schedule-add-form__fields {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 90px 110px 160px 1fr;
+}
+
+.schedule-add-form__fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.schedule-add-form__fields span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.schedule-add-form__fields select,
+.schedule-add-form__fields input {
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  padding: 10px 12px;
+}
+
+.schedule-add-form .thumbnail-slot {
+  max-width: 180px;
+}
+
+.schedule-add-form__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.schedule-save-bar {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding-top: 16px;
+}
+
+.schedule-save-bar__status {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 640px) {
+  .schedule-row {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-add-form__fields {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-save-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
