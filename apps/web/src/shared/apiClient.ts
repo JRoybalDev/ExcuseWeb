@@ -1,12 +1,24 @@
 import {
+  AuditRunListSchema,
+  AuditRunSchema,
+  CalendarAutoFillResultSchema,
+  CalendarChecklistSchema,
+  CalendarEntryListSchema,
+  CalendarEntrySchema,
   ScheduleEntryListSchema,
   ScheduleEntrySchema,
   SiteListSchema,
   SiteSchema,
   UploadListSchema,
   UploadSchema,
+  WeeklyRhythmStateSchema,
+  type AuditRunDraftInput,
+  type CalendarAutoFillInput,
+  type CalendarChecklistUpdateInput,
+  type CalendarEntryDraftInput,
   type ScheduleEntryDraftInput,
-  type SiteDraft
+  type SiteDraft,
+  type WeeklyRhythmUpdateInput
 } from "@fullstack-template/schema";
 import { apiJson, withAdminKey } from "./api";
 
@@ -222,6 +234,134 @@ export const apiClient = {
           `/api/schedule/${encodeURIComponent(id)}`,
           withAdminKey(adminKey, {
             method: "DELETE"
+          })
+        )
+      );
+    }
+  },
+
+  audit: {
+    async list(adminKey: string) {
+      return AuditRunListSchema.parse(await apiJson("/api/audit", withAdminKey(adminKey)));
+    },
+
+    async create(adminKey: string, draft: AuditRunDraftInput) {
+      return AuditRunSchema.parse(
+        await apiJson(
+          "/api/audit",
+          withAdminKey(adminKey, {
+            method: "POST",
+            body: JSON.stringify(draft)
+          })
+        )
+      );
+    },
+
+    async delete(adminKey: string, id: string) {
+      return AuditRunSchema.parse(
+        await apiJson(
+          `/api/audit/${encodeURIComponent(id)}`,
+          withAdminKey(adminKey, {
+            method: "DELETE"
+          })
+        )
+      );
+    }
+  },
+
+  calendar: {
+    async list(adminKey: string) {
+      return CalendarEntryListSchema.parse(await apiJson("/api/calendar", withAdminKey(adminKey)));
+    },
+
+    async create(adminKey: string, draft: CalendarEntryDraftInput) {
+      return CalendarEntrySchema.parse(
+        await apiJson(
+          "/api/calendar",
+          withAdminKey(adminKey, {
+            method: "POST",
+            body: JSON.stringify(draft)
+          })
+        )
+      );
+    },
+
+    async update(adminKey: string, id: string, draft: CalendarEntryDraftInput) {
+      return CalendarEntrySchema.parse(
+        await apiJson(
+          `/api/calendar/${encodeURIComponent(id)}`,
+          withAdminKey(adminKey, {
+            method: "PUT",
+            body: JSON.stringify(draft)
+          })
+        )
+      );
+    },
+
+    async delete(adminKey: string, id: string) {
+      return CalendarEntrySchema.parse(
+        await apiJson(
+          `/api/calendar/${encodeURIComponent(id)}`,
+          withAdminKey(adminKey, {
+            method: "DELETE"
+          })
+        )
+      );
+    },
+
+    async autoFill(adminKey: string, input: CalendarAutoFillInput) {
+      return CalendarAutoFillResultSchema.parse(
+        await apiJson(
+          "/api/calendar/auto-fill",
+          withAdminKey(adminKey, {
+            method: "POST",
+            body: JSON.stringify(input)
+          })
+        )
+      );
+    },
+
+    async getChecklist(adminKey: string, entryId: string) {
+      return CalendarChecklistSchema.parse(await apiJson(`/api/calendar/${encodeURIComponent(entryId)}/checklist`, withAdminKey(adminKey)));
+    },
+
+    async updateChecklist(adminKey: string, entryId: string, update: CalendarChecklistUpdateInput) {
+      return CalendarChecklistSchema.parse(
+        await apiJson(
+          `/api/calendar/${encodeURIComponent(entryId)}/checklist`,
+          withAdminKey(adminKey, {
+            method: "PUT",
+            body: JSON.stringify(update)
+          })
+        )
+      );
+    }
+  },
+
+  weeklyRhythm: {
+    async get(adminKey: string) {
+      return WeeklyRhythmStateSchema.parse(await apiJson("/api/weekly-rhythm", withAdminKey(adminKey)));
+    },
+
+    async update(adminKey: string, update: WeeklyRhythmUpdateInput) {
+      return WeeklyRhythmStateSchema.parse(
+        await apiJson(
+          "/api/weekly-rhythm",
+          withAdminKey(adminKey, {
+            method: "PUT",
+            body: JSON.stringify(update)
+          })
+        )
+      );
+    },
+
+    async reset(adminKey: string, weekStartDate: string) {
+      return WeeklyRhythmStateSchema.parse(
+        await apiJson(
+          "/api/weekly-rhythm/reset",
+          withAdminKey(adminKey, {
+            method: "POST",
+            body: JSON.stringify({ weekStartDate })
           })
         )
       );

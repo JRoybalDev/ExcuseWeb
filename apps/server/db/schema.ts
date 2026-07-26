@@ -1,5 +1,15 @@
-import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { defaultSiteBranding, defaultSiteMetadata, type ScheduleDay, type ScheduleEntryType, type SiteBranding } from "@fullstack-template/schema";
+import { boolean, date, doublePrecision, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  defaultSiteBranding,
+  defaultSiteMetadata,
+  type AuditDiagnosis,
+  type CalendarPriority,
+  type CalendarSlot,
+  type CalendarStatus,
+  type ScheduleDay,
+  type ScheduleEntryType,
+  type SiteBranding
+} from "@fullstack-template/schema";
 
 export const sites = pgTable("sites", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -43,6 +53,60 @@ export const scheduleEntries = pgTable("schedule_entries", {
   uploadId: uuid("upload_id").references(() => uploads.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const calendarEntries = pgTable("calendar_entries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  uploadDate: date("upload_date", { mode: "string" }).notNull(),
+  slot: text("slot").$type<CalendarSlot>().notNull().default("saturday_main"),
+  title: text("title").notNull().default(""),
+  priority: text("priority").$type<CalendarPriority>().notNull().default("normal"),
+  status: text("status").$type<CalendarStatus>().notNull().default("idea"),
+  packagingDone: boolean("packaging_done").notNull().default(false),
+  expectedClipCount: integer("expected_clip_count").notNull().default(0),
+  notes: text("notes").notNull().default(""),
+  titleCandidates: jsonb("title_candidates").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const calendarChecklists = pgTable("calendar_checklists", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  calendarEntryId: uuid("calendar_entry_id")
+    .notNull()
+    .unique()
+    .references(() => calendarEntries.id, { onDelete: "cascade" }),
+  checkedItems: jsonb("checked_items").$type<Record<string, boolean>>().notNull().default({}),
+  itemNotes: jsonb("item_notes").$type<Record<string, string>>().notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const weeklyRhythmState = pgTable("weekly_rhythm_state", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  weekStartDate: date("week_start_date", { mode: "string" }).notNull(),
+  checkedItems: jsonb("checked_items").$type<Record<string, boolean>>().notNull().default({}),
+  sundayStreamChecked: jsonb("sunday_stream_checked").$type<Record<string, boolean>>().notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});
+
+export const auditRuns = pgTable("audit_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  auditDate: date("audit_date", { mode: "string" }).notNull(),
+  ctrPercent: doublePrecision("ctr_percent").notNull(),
+  avgPercentViewed: doublePrecision("avg_percent_viewed").notNull(),
+  viewsThisPeriod: integer("views_this_period").notNull(),
+  viewsPriorPeriod: integer("views_prior_period").notNull(),
+  subsGainedThisPeriod: integer("subs_gained_this_period").notNull(),
+  subsGainedPriorPeriod: integer("subs_gained_prior_period").notNull(),
+  shortsViewsThisPeriod: integer("shorts_views_this_period").notNull().default(0),
+  shortsViewsPriorPeriod: integer("shorts_views_prior_period").notNull().default(0),
+  revenueThisPeriod: doublePrecision("revenue_this_period").notNull().default(0),
+  revenuePriorPeriod: doublePrecision("revenue_prior_period").notNull().default(0),
+  notes: text("notes").notNull().default(""),
+  diagnosis: jsonb("diagnosis").$type<AuditDiagnosis>().notNull().default({ cards: [], crossMetric: [] }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
 });
 
 export const user = pgTable("user", {
@@ -105,3 +169,11 @@ export type NewSiteRow = typeof sites.$inferInsert;
 export type UploadRow = typeof uploads.$inferSelect;
 export type ScheduleEntryRow = typeof scheduleEntries.$inferSelect;
 export type NewScheduleEntryRow = typeof scheduleEntries.$inferInsert;
+export type AuditRunRow = typeof auditRuns.$inferSelect;
+export type NewAuditRunRow = typeof auditRuns.$inferInsert;
+export type WeeklyRhythmStateRow = typeof weeklyRhythmState.$inferSelect;
+export type NewWeeklyRhythmStateRow = typeof weeklyRhythmState.$inferInsert;
+export type CalendarEntryRow = typeof calendarEntries.$inferSelect;
+export type NewCalendarEntryRow = typeof calendarEntries.$inferInsert;
+export type CalendarChecklistRow = typeof calendarChecklists.$inferSelect;
+export type NewCalendarChecklistRow = typeof calendarChecklists.$inferInsert;
