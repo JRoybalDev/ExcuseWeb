@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "bun run scripts/dev.ts",
     "typecheck": "bun run typecheck:all",
-    "typecheck:all": "bun run --cwd packages/schema typecheck && bun run --cwd apps/server typecheck && bun run --cwd apps/web typecheck && tsc -p api.tsconfig.json --noEmit",
+    "typecheck:all": "bun run --cwd packages/schema typecheck && bun run --cwd apps/server typecheck && bun run --cwd apps/web typecheck && tsc -p api/tsconfig.json --noEmit",
     "build": "bun run build:all",
     "build:all": "bun run --cwd packages/schema build && bun run --cwd apps/server build && bun run --cwd apps/web build",
     "db:up": "bun run scripts/compose.ts up -d db",
