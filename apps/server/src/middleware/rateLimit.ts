@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from "hono";
-import { fail } from "../http/response";
-import type { AppVariables } from "../types";
+import { fail } from "../http/response.ts";
+import type { AppVariables } from "../types.ts";
 
 type RateLimitEntry = {
   count: number;

@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from "hono";
-import { logger } from "../logger";
-import type { AppVariables } from "../types";
+import { logger } from "../logger.ts";
+import type { AppVariables } from "../types.ts";
 
 export const requestContext: MiddlewareHandler<{ Variables: AppVariables }> = async (c, next) => {
   const requestId = c.req.header("X-Request-Id") ?? crypto.randomUUID();

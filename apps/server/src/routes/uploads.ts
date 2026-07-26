@@ -1,16 +1,16 @@
 import { desc, eq } from "drizzle-orm";
 import { Hono, type Context } from "hono";
-import { uploads } from "../../db/schema";
-import { db } from "../db";
-import { fail, ok } from "../http/response";
-import { toUpload } from "../mappers";
-import { requireAdminKey } from "../middleware/admin";
-import { deleteStoredUpload, replaceStoredUpload, storeUpload } from "../storage/uploadStorage";
-import type { AppVariables } from "../types";
+import { uploads } from "../../db/schema.ts";
+import { db } from "../db.ts";
+import { fail, ok } from "../http/response.ts";
+import { toUpload } from "../mappers.ts";
+import { requireAdminKey } from "../middleware/admin.ts";
+import { deleteStoredUpload, replaceStoredUpload, storeUpload } from "../storage/uploadStorage.ts";
+import type { AppVariables } from "../types.ts";
 
 export const uploadsRoute = new Hono<{ Variables: AppVariables }>();
 
-async function fileFromRequest(c: Context<{ Variables: AppVariables }>) {
+async function fileFromRequest(c: Context<{ Variables: AppVariables }>): Promise<File | null> {
   const form = await c.req.formData();
   const file = form.get("file");
   return file instanceof File && file.size > 0 ? file : null;

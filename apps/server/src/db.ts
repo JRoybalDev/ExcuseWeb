@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "../db/schema";
-import { loadRootEnv } from "./loadEnv";
+import * as schema from "../db/schema.ts";
+import { loadRootEnv } from "./loadEnv.ts";
 
 loadRootEnv();
 

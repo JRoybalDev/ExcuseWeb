@@ -1,5 +1,5 @@
 import { SiteBrandingSchema, SiteMetadataSchema, type ScheduleEntry, type Site, type Upload } from "@fullstack-template/schema";
-import type { ScheduleEntryRow, SiteRow, UploadRow } from "../db/schema";
+import type { ScheduleEntryRow, SiteRow, UploadRow } from "../db/schema.ts";
 
 export function toSite(row: SiteRow): Site {
   return {

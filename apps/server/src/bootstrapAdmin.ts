@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
-import { user } from "../db/schema";
-import { auth } from "./auth";
-import { db } from "./db";
-import { env } from "./env";
-import { logger } from "./logger";
+import { user } from "../db/schema.ts";
+import { auth } from "./auth.ts";
+import { db } from "./db.ts";
+import { env } from "./env.ts";
+import { logger } from "./logger.ts";
 
 export async function seedBootstrapAdmin() {
   if (env.authMode !== "better-auth" || !env.betterAuthBootstrapAdminEmail || !env.betterAuthBootstrapAdminPassword) {

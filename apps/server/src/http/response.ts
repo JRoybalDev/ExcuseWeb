@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
-import type { AppVariables } from "../types";
+import type { AppVariables } from "../types.ts";
 
 type ApiMeta = {
   requestId?: string;

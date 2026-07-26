@@ -2,10 +2,10 @@ import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { Readable } from "node:stream";
-import type { UploadRow } from "../../db/schema";
-import { env } from "../env";
-import { logger } from "../logger";
-import { createThumbnail } from "../uploads/thumbnail";
+import type { UploadRow } from "../../db/schema.ts";
+import { env } from "../env.ts";
+import { logger } from "../logger.ts";
+import { createThumbnail } from "../uploads/thumbnail.ts";
 
 export type StoredUpload = {
   url: string;

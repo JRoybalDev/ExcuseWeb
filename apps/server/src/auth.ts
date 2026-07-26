@@ -1,10 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin } from "better-auth/plugins";
-import * as schema from "../db/schema";
-import { db } from "./db";
-import { sendPasswordResetEmail } from "./email";
-import { env } from "./env";
+import * as schema from "../db/schema.ts";
+import { db } from "./db.ts";
+import { sendPasswordResetEmail } from "./email.ts";
+import { env } from "./env.ts";
 
 const trustedOrigins = Array.from(new Set([env.webOrigin, env.betterAuthUrl, "http://localhost:5173", "http://127.0.0.1:5173", ...env.betterAuthTrustedOrigins]));
 

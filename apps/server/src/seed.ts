@@ -1,6 +1,6 @@
-import { seedBootstrapAdmin } from "./bootstrapAdmin";
-import { env } from "./env";
-import { logger } from "./logger";
+import { seedBootstrapAdmin } from "./bootstrapAdmin.ts";
+import { env } from "./env.ts";
+import { logger } from "./logger.ts";
 
 if (env.authMode !== "better-auth") {
   logger.warn("seed.skipped", {

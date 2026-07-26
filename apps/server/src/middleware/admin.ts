@@ -1,8 +1,8 @@
 import type { MiddlewareHandler } from "hono";
-import { auth } from "../auth";
-import { env } from "../env";
-import { fail } from "../http/response";
-import type { AppVariables } from "../types";
+import { auth } from "../auth.ts";
+import { env } from "../env.ts";
+import { fail } from "../http/response.ts";
+import type { AppVariables } from "../types.ts";
 
 export const requireAdminAccess: MiddlewareHandler<{ Variables: AppVariables }> = async (c, next) => {
   if (env.authMode === "better-auth") {

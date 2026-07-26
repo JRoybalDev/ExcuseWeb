@@ -1,14 +1,14 @@
 import { ScheduleEntryDraftSchema, scheduleDayValues, type ScheduleDay } from "@fullstack-template/schema";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { scheduleEntries, uploads } from "../../db/schema";
-import { db } from "../db";
-import { fail, ok } from "../http/response";
-import { logger } from "../logger";
-import { toScheduleEntry } from "../mappers";
-import { requireAdminKey } from "../middleware/admin";
-import { deleteStoredUpload } from "../storage/uploadStorage";
-import type { AppVariables } from "../types";
+import { scheduleEntries, uploads } from "../../db/schema.ts";
+import { db } from "../db.ts";
+import { fail, ok } from "../http/response.ts";
+import { logger } from "../logger.ts";
+import { toScheduleEntry } from "../mappers.ts";
+import { requireAdminKey } from "../middleware/admin.ts";
+import { deleteStoredUpload } from "../storage/uploadStorage.ts";
+import type { AppVariables } from "../types.ts";
 
 export const scheduleRoute = new Hono<{ Variables: AppVariables }>();
 

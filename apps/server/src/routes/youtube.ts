@@ -1,8 +1,8 @@
 import { google } from "googleapis";
 import { Hono } from "hono";
-import { env } from "../env";
-import { fail, ok } from "../http/response";
-import type { AppVariables } from "../types";
+import { env } from "../env.ts";
+import { fail, ok } from "../http/response.ts";
+import type { AppVariables } from "../types.ts";
 
 export const youtubeRoute = new Hono<{ Variables: AppVariables }>();
 

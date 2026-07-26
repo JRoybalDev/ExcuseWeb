@@ -1,14 +1,14 @@
 import { desc } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
-import { sites, user } from "../../db/schema";
-import { auth } from "../auth";
-import { db } from "../db";
-import { env } from "../env";
-import { fail, ok } from "../http/response";
-import { toSite } from "../mappers";
-import { requireAdminKey } from "../middleware/admin";
-import type { AppVariables } from "../types";
+import { sites, user } from "../../db/schema.ts";
+import { auth } from "../auth.ts";
+import { db } from "../db.ts";
+import { env } from "../env.ts";
+import { fail, ok } from "../http/response.ts";
+import { toSite } from "../mappers.ts";
+import { requireAdminKey } from "../middleware/admin.ts";
+import type { AppVariables } from "../types.ts";
 
 export const adminRoute = new Hono<{ Variables: AppVariables }>();
 

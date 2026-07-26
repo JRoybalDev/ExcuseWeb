@@ -1,4 +1,4 @@
-import { loadRootEnv } from "./loadEnv";
+import { loadRootEnv } from "./loadEnv.ts";
 
 loadRootEnv();
 

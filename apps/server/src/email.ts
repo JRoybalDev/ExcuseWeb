@@ -1,6 +1,6 @@
 import { Resend } from "resend";
-import { env } from "./env";
-import { logger } from "./logger";
+import { env } from "./env.ts";
+import { logger } from "./logger.ts";
 
 type SendPasswordResetEmailInput = {
   email: string;

@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from "hono";
-import { env } from "../env";
+import { env } from "../env.ts";
 
 const csp = [
   "default-src 'self'",
