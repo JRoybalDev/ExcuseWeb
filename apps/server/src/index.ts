@@ -1,7 +1,5 @@
-import { Hono } from "hono";
-
-const app = new Hono();
-
-app.get("/health", (c) => c.json({ ok: true, diagnostic: "export-default-app" }));
-
-export default app;
+export default {
+  async fetch(_request: Request) {
+    return Response.json({ ok: true, diagnostic: "bare-fetch-node-runtime" });
+  }
+};
