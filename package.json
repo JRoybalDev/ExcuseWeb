@@ -13,6 +13,17 @@
     "db:logs": "bun run scripts/compose.ts logs -f db",
     "db:seed": "bun run --cwd apps/server db:seed"
   },
+  "dependencies": {
+    "better-auth": "^1.6.15",
+    "cloudinary": "^2.10.0",
+    "drizzle-orm": "^0.45.2",
+    "googleapis": "^171.4.0",
+    "hono": "^4.12.22",
+    "postgres": "^3.4.9",
+    "resend": "^6.12.4",
+    "sharp": "^0.34.5",
+    "zod": "^4.4.3"
+  },
   "devDependencies": {
     "@types/bun": "^1.3.3",
     "typescript": "^5.9.3"
