@@ -72,7 +72,7 @@ adminRoute.get("/users", async (c) => {
 });
 
 adminRoute.post("/users", async (c) => {
-  if (env.authMode !== "better-auth") {
+  if (env.authMode !== "better-auth" || !auth) {
     return betterAuthRequired(c);
   }
 
@@ -91,7 +91,7 @@ adminRoute.post("/users", async (c) => {
 });
 
 adminRoute.post("/users/:userId/role", async (c) => {
-  if (env.authMode !== "better-auth") {
+  if (env.authMode !== "better-auth" || !auth) {
     return betterAuthRequired(c);
   }
 
@@ -111,7 +111,7 @@ adminRoute.post("/users/:userId/role", async (c) => {
 });
 
 adminRoute.post("/users/:userId/ban", async (c) => {
-  if (env.authMode !== "better-auth") {
+  if (env.authMode !== "better-auth" || !auth) {
     return betterAuthRequired(c);
   }
 
@@ -131,7 +131,7 @@ adminRoute.post("/users/:userId/ban", async (c) => {
 });
 
 adminRoute.post("/users/:userId/unban", async (c) => {
-  if (env.authMode !== "better-auth") {
+  if (env.authMode !== "better-auth" || !auth) {
     return betterAuthRequired(c);
   }
 
@@ -150,7 +150,7 @@ adminRoute.post("/users/:userId/unban", async (c) => {
 });
 
 adminRoute.post("/users/:userId/password", async (c) => {
-  if (env.authMode !== "better-auth") {
+  if (env.authMode !== "better-auth" || !auth) {
     return betterAuthRequired(c);
   }
 
@@ -170,7 +170,7 @@ adminRoute.post("/users/:userId/password", async (c) => {
 });
 
 adminRoute.post("/users/:userId/revoke-sessions", async (c) => {
-  if (env.authMode !== "better-auth") {
+  if (env.authMode !== "better-auth" || !auth) {
     return betterAuthRequired(c);
   }
 
@@ -189,7 +189,7 @@ adminRoute.post("/users/:userId/revoke-sessions", async (c) => {
 });
 
 adminRoute.delete("/users/:userId", async (c) => {
-  if (env.authMode !== "better-auth") {
+  if (env.authMode !== "better-auth" || !auth) {
     return betterAuthRequired(c);
   }
 

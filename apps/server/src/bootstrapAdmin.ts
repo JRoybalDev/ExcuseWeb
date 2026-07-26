@@ -6,7 +6,7 @@ import { env } from "./env.ts";
 import { logger } from "./logger.ts";
 
 export async function seedBootstrapAdmin() {
-  if (env.authMode !== "better-auth" || !env.betterAuthBootstrapAdminEmail || !env.betterAuthBootstrapAdminPassword) {
+  if (env.authMode !== "better-auth" || !env.betterAuthBootstrapAdminEmail || !env.betterAuthBootstrapAdminPassword || !auth) {
     return;
   }
 

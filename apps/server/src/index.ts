@@ -1,7 +1,7 @@
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { Hono } from "hono";
-import { auth } from "./auth.ts";
+import { auth, authInitError } from "./auth.ts";
 import { seedBootstrapAdmin } from "./bootstrapAdmin.ts";
 import { env } from "./env.ts";
 import { fail, ok } from "./http/response.ts";
@@ -43,7 +43,8 @@ app.use(
 app.get("/health", (c) =>
   ok(c, {
     ok: true,
-    service: "fullstack-template-api"
+    service: "fullstack-template-api",
+    authInitError
   })
 );
 
@@ -74,7 +75,7 @@ app.get("/api/auth/config", (c) =>
   })
 );
 
-app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+app.on(["GET", "POST"], "/api/auth/*", (c) => (auth ? auth.handler(c.req.raw) : fail(c, "Auth is not configured on the server", 503, { code: "AUTH_UNAVAILABLE" })));
 app.route("/api/sites", sitesRoute);
 app.route("/api/schedule", scheduleRoute);
 app.route("/api/youtube", youtubeRoute);

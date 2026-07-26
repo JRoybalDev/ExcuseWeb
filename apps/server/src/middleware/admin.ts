@@ -6,7 +6,7 @@ import type { AppVariables } from "../types.ts";
 
 export const requireAdminAccess: MiddlewareHandler<{ Variables: AppVariables }> = async (c, next) => {
   if (env.authMode === "better-auth") {
-    if (!env.betterAuthSecret) {
+    if (!env.betterAuthSecret || !auth) {
       return fail(c, "BETTER_AUTH_SECRET is not configured on the server", 503, { code: "BETTER_AUTH_SECRET_MISSING" });
     }
 

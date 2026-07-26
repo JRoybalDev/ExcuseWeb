@@ -5,66 +5,78 @@ import * as schema from "../db/schema.ts";
 import { db } from "./db.ts";
 import { sendPasswordResetEmail } from "./email.ts";
 import { env } from "./env.ts";
+import { logger } from "./logger.ts";
 
 const trustedOrigins = Array.from(new Set([env.webOrigin, env.betterAuthUrl, "http://localhost:5173", "http://127.0.0.1:5173", ...env.betterAuthTrustedOrigins]));
 
-export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    schema
-  }),
-  emailAndPassword: {
-    enabled: true,
-    disableSignUp: env.betterAuthSignupMode === "private",
-    resetPasswordTokenExpiresIn: 3600,
-    revokeSessionsOnPasswordReset: true,
-    sendResetPassword: async ({ user, url }) => {
-      await sendPasswordResetEmail({
-        email: user.email,
-        from: env.passwordResetFromEmail,
-        mode: env.passwordResetEmailMode,
-        url
-      });
-    }
-  },
-  rateLimit: {
-    enabled: env.authRateLimitEnabled,
-    window: env.authRateLimitWindow,
-    max: env.authRateLimitMax,
-    customRules: {
-      "/sign-in/email": {
-        window: env.authRateLimitWindow,
-        max: Math.min(env.authRateLimitMax, 10)
-      },
-      "/request-password-reset": {
-        window: env.authRateLimitWindow,
-        max: Math.min(env.authRateLimitMax, 5)
-      },
-      "/reset-password": {
-        window: env.authRateLimitWindow,
-        max: Math.min(env.authRateLimitMax, 5)
-      }
-    }
-  },
-  secret: env.betterAuthSecret,
-  baseURL: env.betterAuthUrl,
-  trustedOrigins,
-  advanced: {
-    useSecureCookies: env.authCookieSecure,
-    crossSubDomainCookies: env.authCookieCrossSubdomain
-      ? {
-          enabled: true,
-          domain: env.authCookieDomain
+function initAuth() {
+  try {
+    return betterAuth({
+      database: drizzleAdapter(db, {
+        provider: "pg",
+        schema
+      }),
+      emailAndPassword: {
+        enabled: true,
+        disableSignUp: env.betterAuthSignupMode === "private",
+        resetPasswordTokenExpiresIn: 3600,
+        revokeSessionsOnPasswordReset: true,
+        sendResetPassword: async ({ user, url }) => {
+          await sendPasswordResetEmail({
+            email: user.email,
+            from: env.passwordResetFromEmail,
+            mode: env.passwordResetEmailMode,
+            url
+          });
         }
-      : undefined,
-    defaultCookieAttributes: {
-      secure: env.authCookieSecure
-    }
-  },
-  plugins: [
-    admin({
-      defaultRole: "user",
-      adminRoles: env.adminRoles
-    })
-  ]
-});
+      },
+      rateLimit: {
+        enabled: env.authRateLimitEnabled,
+        window: env.authRateLimitWindow,
+        max: env.authRateLimitMax,
+        customRules: {
+          "/sign-in/email": {
+            window: env.authRateLimitWindow,
+            max: Math.min(env.authRateLimitMax, 10)
+          },
+          "/request-password-reset": {
+            window: env.authRateLimitWindow,
+            max: Math.min(env.authRateLimitMax, 5)
+          },
+          "/reset-password": {
+            window: env.authRateLimitWindow,
+            max: Math.min(env.authRateLimitMax, 5)
+          }
+        }
+      },
+      secret: env.betterAuthSecret,
+      baseURL: env.betterAuthUrl,
+      trustedOrigins,
+      advanced: {
+        useSecureCookies: env.authCookieSecure,
+        crossSubDomainCookies: env.authCookieCrossSubdomain
+          ? {
+              enabled: true,
+              domain: env.authCookieDomain
+            }
+          : undefined,
+        defaultCookieAttributes: {
+          secure: env.authCookieSecure
+        }
+      },
+      plugins: [
+        admin({
+          defaultRole: "user",
+          adminRoles: env.adminRoles
+        })
+      ]
+    });
+  } catch (error) {
+    authInitError = error instanceof Error ? error.message : String(error);
+    logger.error("auth.init_failed", { error });
+    return null;
+  }
+}
+
+export let authInitError: string | null = null;
+export const auth = initAuth();
