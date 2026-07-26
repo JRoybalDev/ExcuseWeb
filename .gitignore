@@ -4,7 +4,7 @@ dist
 .env.local
 .env*.local
 .DS_Store
-uploads
+apps/server/uploads
 *.log
 .vite
 .vercel
@@ -12,3 +12,4 @@ coverage
 *.tsbuildinfo
 .idea
 .vscode
+.env*
