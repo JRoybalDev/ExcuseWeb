@@ -13,7 +13,12 @@ export const uploadsRoute = new Hono<{ Variables: AppVariables }>();
 async function fileFromRequest(c: Context<{ Variables: AppVariables }>): Promise<File | null> {
   const form = await c.req.formData();
   const file = form.get("file");
-  return file instanceof File && file.size > 0 ? file : null;
+
+  if (file === null || typeof file === "string") {
+    return null;
+  }
+
+  return file.size > 0 ? file : null;
 }
 
 uploadsRoute.get("/", requireAdminKey, async (c) => {
