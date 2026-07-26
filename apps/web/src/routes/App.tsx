@@ -14,8 +14,9 @@ const themeOptions: Array<{ mode: ThemeMode; label: string; icon: typeof FiSun }
 export function App() {
   const { mode, resolvedTheme, setMode } = useThemeMode();
   const location = useLocation();
-  const isDashboard = location.pathname.startsWith("/dashboard");
-  const isComingSoon = location.pathname === "/";
+  const pathname = location.pathname.toLowerCase();
+  const isDashboard = pathname.startsWith("/dashboard");
+  const isComingSoon = pathname === "/";
   const hideChrome = isDashboard || isComingSoon;
   const [isTopbarScrolled, setIsTopbarScrolled] = useState(false);
   const prefersReducedMotion = useReducedMotion();
