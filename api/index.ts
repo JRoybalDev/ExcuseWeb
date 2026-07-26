@@ -1,3 +1,5 @@
-import server from "../apps/server/src/index.ts";
-
-export default server;
+export default {
+  async fetch(_request: Request) {
+    return Response.json({ ok: true, diagnostic: "minimal-handler" });
+  }
+};
