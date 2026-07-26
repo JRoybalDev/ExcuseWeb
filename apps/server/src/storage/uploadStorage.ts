@@ -5,7 +5,6 @@ import { Readable } from "node:stream";
 import type { UploadRow } from "../../db/schema.ts";
 import { env } from "../env.ts";
 import { logger } from "../logger.ts";
-import { createThumbnail } from "../uploads/thumbnail.ts";
 
 export type StoredUpload = {
   url: string;
@@ -33,6 +32,7 @@ async function storeLocalUpload(file: File): Promise<StoredUpload> {
   const safeName = `${crypto.randomUUID()}.${extensionFor(file)}`;
   const path = join(env.uploadDir, safeName);
   await Bun.write(path, file);
+  const { createThumbnail } = await import("../uploads/thumbnail.ts");
   const thumbnail = await createThumbnail(file, env.uploadDir);
 
   return {
