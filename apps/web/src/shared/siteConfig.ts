@@ -2,7 +2,7 @@ export const siteConfig = {
   siteName: "ExcuseMeImJack",
   defaultPageName: "Coming Soon",
   dashboardPageName: "Dashboard",
-  faviconHref: "/favicon.svg",
+  faviconHref: "/favicon-32x32.png",
   frontendAsideMode: "static" as "scroll" | "static"
 };
 

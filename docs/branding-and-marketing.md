@@ -36,7 +36,14 @@ The site name, page-title format, dashboard title, and shared favicon are config
 
 ```txt
 apps/web/src/shared/siteConfig.ts
-apps/web/public/favicon.svg
+apps/web/public/favicon.ico
+apps/web/public/favicon-16x16.png
+apps/web/public/favicon-32x32.png
+apps/web/public/apple-touch-icon.png
+apps/web/public/icon-192.png
+apps/web/public/icon-512.png
+apps/web/public/site.webmanifest
+apps/web/index.html
 ```
 
 The default title pattern is:
