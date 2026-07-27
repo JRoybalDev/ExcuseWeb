@@ -5,12 +5,22 @@ import {
   type AuditRun,
   type CalendarChecklist,
   type CalendarEntry,
+  type ChecklistItem,
   type ScheduleEntry,
   type Site,
   type Upload,
   type WeeklyRhythmState
 } from "@fullstack-template/schema";
-import type { AuditRunRow, CalendarChecklistRow, CalendarEntryRow, ScheduleEntryRow, SiteRow, UploadRow, WeeklyRhythmStateRow } from "../db/schema.ts";
+import type {
+  AuditRunRow,
+  CalendarChecklistRow,
+  CalendarEntryRow,
+  ChecklistItemRow,
+  ScheduleEntryRow,
+  SiteRow,
+  UploadRow,
+  WeeklyRhythmStateRow
+} from "../db/schema.ts";
 
 export function toSite(row: SiteRow): Site {
   return {
@@ -95,6 +105,18 @@ export function toCalendarChecklist(row: CalendarChecklistRow): CalendarChecklis
     calendarEntryId: row.calendarEntryId,
     checkedItems: row.checkedItems,
     itemNotes: row.itemNotes,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString()
+  };
+}
+
+export function toChecklistItem(row: ChecklistItemRow): ChecklistItem {
+  return {
+    id: row.id,
+    groupKey: row.groupKey,
+    label: row.label,
+    note: row.note,
+    sortOrder: row.sortOrder,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString()
   };

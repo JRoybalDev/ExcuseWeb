@@ -12,12 +12,14 @@ import { openApiHtml, openApiSpec } from "./openapi.ts";
 import { adminRoute } from "./routes/admin.ts";
 import { auditRoute } from "./routes/audit.ts";
 import { calendarRoute } from "./routes/calendar.ts";
+import { checklistItemsRoute } from "./routes/checklistItems.ts";
 import { scheduleRoute } from "./routes/schedule.ts";
 import { sitesRoute } from "./routes/sites.ts";
 import { uploadsRoute } from "./routes/uploads.ts";
 import { weeklyRhythmRoute } from "./routes/weeklyRhythm.ts";
 import { youtubeRoute } from "./routes/youtube.ts";
 import { createRateLimit } from "./middleware/rateLimit.ts";
+import { seedDefaultChecklistItems } from "./seedChecklistItems.ts";
 import type { AppVariables } from "./types.ts";
 
 const app = new Hono<{ Variables: AppVariables }>();
@@ -26,6 +28,12 @@ const uploadRateLimit = createRateLimit({ name: "uploads", windowSeconds: env.up
 
 void seedBootstrapAdmin().catch((error) => {
   logger.error("bootstrap_admin.failed", {
+    error
+  });
+});
+
+void seedDefaultChecklistItems().catch((error) => {
+  logger.error("checklist_items.seed_failed", {
     error
   });
 });
@@ -85,6 +93,7 @@ app.route("/api/youtube", youtubeRoute);
 app.route("/api/audit", auditRoute);
 app.route("/api/weekly-rhythm", weeklyRhythmRoute);
 app.route("/api/calendar", calendarRoute);
+app.route("/api/checklist-items", checklistItemsRoute);
 app.use("/api/admin/*", adminRateLimit);
 app.route("/api/admin", adminRoute);
 app.use("/api/uploads/*", uploadRateLimit);

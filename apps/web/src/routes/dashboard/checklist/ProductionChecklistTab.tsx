@@ -1,18 +1,20 @@
 import {
   calcChecklistProgress,
-  productionChecklistItems,
+  productionChecklistGroupKey,
   productionChecklistPhaseLabels,
   productionChecklistPhaseSubtitles,
   productionChecklistPhaseValues,
-  type ChecklistItemDef,
+  type ChecklistItem,
   type ProductionChecklistPhase
 } from "@fullstack-template/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { Link, useParams } from "react-router-dom";
 import { apiClient } from "../../../shared/apiClient";
 import { useDraftStore } from "../../../state/draftStore";
+import { AddChecklistItemForm } from "../shared/AddChecklistItemForm";
+import { ChecklistItemRow } from "../shared/ChecklistItemRow";
 
 export function ProductionChecklistTab() {
   const { entryId } = useParams<{ entryId: string }>();
@@ -31,6 +33,21 @@ export function ProductionChecklistTab() {
     enabled: Boolean(entryId)
   });
 
+  const items = useQuery({
+    queryKey: ["checklist-items"],
+    queryFn: () => apiClient.checklistItems.list(adminKey)
+  });
+
+  const itemsByGroup = useMemo(() => {
+    const map = new Map<string, ChecklistItem[]>();
+    for (const item of items.data ?? []) {
+      const list = map.get(item.groupKey) ?? [];
+      list.push(item);
+      map.set(item.groupKey, list);
+    }
+    return map;
+  }, [items.data]);
+
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean> | null>(null);
   const [itemNotes, setItemNotes] = useState<Record<string, string> | null>(null);
 
@@ -48,29 +65,47 @@ export function ProductionChecklistTab() {
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["calendar-checklist", entryId] })
   });
 
-  function toggleItem(key: string) {
-    const nextChecked = { ...(checkedItems ?? {}), [key]: !checkedItems?.[key] };
+  const createItem = useMutation({
+    mutationFn: (input: { groupKey: string; label: string; note: string }) => apiClient.checklistItems.create(adminKey, input),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["checklist-items"] }),
+    onError: (error: Error) => setActionError(error.message)
+  });
+
+  const updateItem = useMutation({
+    mutationFn: (input: { id: string; label: string; note: string }) => apiClient.checklistItems.update(adminKey, input.id, input),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["checklist-items"] }),
+    onError: (error: Error) => setActionError(error.message)
+  });
+
+  const deleteItem = useMutation({
+    mutationFn: (id: string) => apiClient.checklistItems.delete(adminKey, id),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["checklist-items"] }),
+    onError: (error: Error) => setActionError(error.message)
+  });
+
+  function toggleItem(id: string) {
+    const nextChecked = { ...(checkedItems ?? {}), [id]: !checkedItems?.[id] };
     setCheckedItems(nextChecked);
     setActionError("");
     updateMutation.mutate({ checkedItems: nextChecked, itemNotes: itemNotes ?? {} });
   }
 
-  function updateNoteLocal(key: string, value: string) {
-    setItemNotes((current) => ({ ...(current ?? {}), [key]: value }));
+  function updateNoteLocal(id: string, value: string) {
+    setItemNotes((current) => ({ ...(current ?? {}), [id]: value }));
   }
 
   // Takes the note value directly from the blur event rather than relying on `itemNotes`
   // having already re-rendered from the preceding onChange — those are two separate DOM
   // events, and a fast blur can otherwise fire before React flushes the change.
-  function saveNote(key: string, value: string) {
-    const nextNotes = { ...(itemNotes ?? {}), [key]: value };
+  function saveNote(id: string, value: string) {
+    const nextNotes = { ...(itemNotes ?? {}), [id]: value };
     setItemNotes(nextNotes);
     setActionError("");
     updateMutation.mutate({ checkedItems: checkedItems ?? {}, itemNotes: nextNotes });
   }
 
   const entry = calendar.data?.find((row) => row.id === entryId);
-  const allItems = productionChecklistPhaseValues.flatMap((phase) => productionChecklistItems[phase]);
+  const allItems = productionChecklistPhaseValues.flatMap((phase) => itemsByGroup.get(productionChecklistGroupKey(phase)) ?? []);
   const overall = calcChecklistProgress(checkedItems ?? {}, allItems);
 
   return (
@@ -98,12 +133,15 @@ export function ProductionChecklistTab() {
           <PhaseCard
             key={phase}
             phase={phase}
-            items={productionChecklistItems[phase]}
+            items={itemsByGroup.get(productionChecklistGroupKey(phase)) ?? []}
             checkedItems={checkedItems ?? {}}
             itemNotes={itemNotes ?? {}}
             onToggle={toggleItem}
             onNoteChange={updateNoteLocal}
             onNoteBlur={saveNote}
+            onAdd={(label, note) => createItem.mutate({ groupKey: productionChecklistGroupKey(phase), label, note })}
+            onEdit={(id, label, note) => updateItem.mutate({ id, label, note })}
+            onDelete={(id) => deleteItem.mutate(id)}
           />
         ))}
       </div>
@@ -118,15 +156,21 @@ function PhaseCard({
   itemNotes,
   onToggle,
   onNoteChange,
-  onNoteBlur
+  onNoteBlur,
+  onAdd,
+  onEdit,
+  onDelete
 }: {
   phase: ProductionChecklistPhase;
-  items: ChecklistItemDef[];
+  items: ChecklistItem[];
   checkedItems: Record<string, boolean>;
   itemNotes: Record<string, string>;
-  onToggle: (key: string) => void;
-  onNoteChange: (key: string, value: string) => void;
-  onNoteBlur: (key: string, value: string) => void;
+  onToggle: (id: string) => void;
+  onNoteChange: (id: string, value: string) => void;
+  onNoteBlur: (id: string, value: string) => void;
+  onAdd: (label: string, note: string) => void;
+  onEdit: (id: string, label: string, note: string) => void;
+  onDelete: (id: string) => void;
 }) {
   const progress = calcChecklistProgress(checkedItems, items);
 
@@ -145,29 +189,26 @@ function PhaseCard({
         <i style={{ width: `${progress.percent}%` }} />
       </div>
       <div className="rhythm-day__items">
-        {items.map((item) => {
-          const inputId = `pchk-${item.key}`;
-          const checked = Boolean(checkedItems[item.key]);
-          return (
-            <div key={item.key} className={checked ? "rhythm-check rhythm-check--done checklist-item" : "rhythm-check checklist-item"}>
-              <input id={inputId} type="checkbox" checked={checked} onChange={() => onToggle(item.key)} />
-              <div className="checklist-item__body">
-                <label htmlFor={inputId}>
-                  {item.label}
-                  {item.note ? <em>{item.note}</em> : null}
-                </label>
-                <input
-                  className="checklist-item__note"
-                  type="text"
-                  placeholder="Add a note..."
-                  value={itemNotes[item.key] ?? ""}
-                  onChange={(event) => onNoteChange(item.key, event.target.value)}
-                  onBlur={(event) => onNoteBlur(item.key, event.target.value)}
-                />
-              </div>
-            </div>
-          );
-        })}
+        {items.map((item) => (
+          <ChecklistItemRow
+            key={item.id}
+            item={item}
+            checked={Boolean(checkedItems[item.id])}
+            onToggleChecked={() => onToggle(item.id)}
+            onSaveEdit={(label, note) => onEdit(item.id, label, note)}
+            onDelete={() => onDelete(item.id)}
+          >
+            <input
+              className="checklist-item__note"
+              type="text"
+              placeholder="Add a note..."
+              value={itemNotes[item.id] ?? ""}
+              onChange={(event) => onNoteChange(item.id, event.target.value)}
+              onBlur={(event) => onNoteBlur(item.id, event.target.value)}
+            />
+          </ChecklistItemRow>
+        ))}
+        <AddChecklistItemForm onAdd={onAdd} />
       </div>
     </div>
   );

@@ -82,6 +82,16 @@ export const calendarChecklists = pgTable("calendar_checklists", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
 });
 
+export const checklistItems = pgTable("checklist_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  groupKey: text("group_key").notNull(),
+  label: text("label").notNull(),
+  note: text("note").notNull().default(""),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});
+
 export const weeklyRhythmState = pgTable("weekly_rhythm_state", {
   id: uuid("id").primaryKey().defaultRandom(),
   weekStartDate: date("week_start_date", { mode: "string" }).notNull(),
@@ -177,3 +187,5 @@ export type CalendarEntryRow = typeof calendarEntries.$inferSelect;
 export type NewCalendarEntryRow = typeof calendarEntries.$inferInsert;
 export type CalendarChecklistRow = typeof calendarChecklists.$inferSelect;
 export type NewCalendarChecklistRow = typeof calendarChecklists.$inferInsert;
+export type ChecklistItemRow = typeof checklistItems.$inferSelect;
+export type NewChecklistItemRow = typeof checklistItems.$inferInsert;

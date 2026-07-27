@@ -1,18 +1,20 @@
 import {
   calcChecklistProgress,
-  sundayStreamChecklistItems,
+  sundayStreamGroupKey,
   weeklyRhythmDayLabels,
   weeklyRhythmDaySubtitles,
   weeklyRhythmDayValues,
-  weeklyRhythmItems,
-  type ChecklistItemDef,
+  weeklyRhythmGroupKey,
+  type ChecklistItem,
   type WeeklyRhythmDay
 } from "@fullstack-template/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FiRefreshCw } from "react-icons/fi";
 import { apiClient } from "../../../shared/apiClient";
 import { useDraftStore } from "../../../state/draftStore";
+import { AddChecklistItemForm } from "../shared/AddChecklistItemForm";
+import { ChecklistItemRow } from "../shared/ChecklistItemRow";
 
 function mostRecentSaturdayIso(): string {
   const now = new Date();
@@ -30,6 +32,21 @@ export function WeeklyRhythmTab() {
     queryKey: ["weekly-rhythm"],
     queryFn: () => apiClient.weeklyRhythm.get(adminKey)
   });
+
+  const items = useQuery({
+    queryKey: ["checklist-items"],
+    queryFn: () => apiClient.checklistItems.list(adminKey)
+  });
+
+  const itemsByGroup = useMemo(() => {
+    const map = new Map<string, ChecklistItem[]>();
+    for (const item of items.data ?? []) {
+      const list = map.get(item.groupKey) ?? [];
+      list.push(item);
+      map.set(item.groupKey, list);
+    }
+    return map;
+  }, [items.data]);
 
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean> | null>(null);
   const [streamChecked, setStreamChecked] = useState<Record<string, boolean> | null>(null);
@@ -58,15 +75,33 @@ export function WeeklyRhythmTab() {
     onError: (error: Error) => setActionError(error.message)
   });
 
-  function toggleItem(key: string) {
-    const next = { ...(checkedItems ?? {}), [key]: !checkedItems?.[key] };
+  const createItem = useMutation({
+    mutationFn: (input: { groupKey: string; label: string; note: string }) => apiClient.checklistItems.create(adminKey, input),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["checklist-items"] }),
+    onError: (error: Error) => setActionError(error.message)
+  });
+
+  const updateItem = useMutation({
+    mutationFn: (input: { id: string; label: string; note: string }) => apiClient.checklistItems.update(adminKey, input.id, input),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["checklist-items"] }),
+    onError: (error: Error) => setActionError(error.message)
+  });
+
+  const deleteItem = useMutation({
+    mutationFn: (id: string) => apiClient.checklistItems.delete(adminKey, id),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["checklist-items"] }),
+    onError: (error: Error) => setActionError(error.message)
+  });
+
+  function toggleItem(id: string) {
+    const next = { ...(checkedItems ?? {}), [id]: !checkedItems?.[id] };
     setCheckedItems(next);
     setActionError("");
     updateMutation.mutate({ checkedItems: next, sundayStreamChecked: streamChecked ?? {} });
   }
 
-  function toggleStreamItem(key: string) {
-    const next = { ...(streamChecked ?? {}), [key]: !streamChecked?.[key] };
+  function toggleStreamItem(id: string) {
+    const next = { ...(streamChecked ?? {}), [id]: !streamChecked?.[id] };
     setStreamChecked(next);
     setActionError("");
     updateMutation.mutate({ checkedItems: checkedItems ?? {}, sundayStreamChecked: next });
@@ -79,8 +114,9 @@ export function WeeklyRhythmTab() {
     resetMutation.mutate();
   }
 
-  const allItems = weeklyRhythmDayValues.flatMap((day) => weeklyRhythmItems[day]);
+  const allItems = weeklyRhythmDayValues.flatMap((day) => itemsByGroup.get(weeklyRhythmGroupKey(day)) ?? []);
   const overall = calcChecklistProgress(checkedItems ?? {}, allItems);
+  const streamItems = itemsByGroup.get(sundayStreamGroupKey) ?? [];
 
   return (
     <>
@@ -106,15 +142,35 @@ export function WeeklyRhythmTab() {
           <RhythmDayCard
             key={day}
             day={day}
-            items={weeklyRhythmItems[day]}
+            items={itemsByGroup.get(weeklyRhythmGroupKey(day)) ?? []}
             checkedItems={checkedItems ?? {}}
             onToggle={toggleItem}
+            onAdd={(label, note) => createItem.mutate({ groupKey: weeklyRhythmGroupKey(day), label, note })}
+            onEdit={(id, label, note) => updateItem.mutate({ id, label, note })}
+            onDelete={(id) => deleteItem.mutate(id)}
           />
         ))}
       </div>
 
       <h3 className="template-section__title">Sunday stream checklist</h3>
-      <RhythmChecklistCard items={sundayStreamChecklistItems} checkedItems={streamChecked ?? {}} onToggle={toggleStreamItem} />
+      <div className="rhythm-day">
+        <div className="rhythm-minibar">
+          <i style={{ width: `${calcChecklistProgress(streamChecked ?? {}, streamItems).percent}%` }} />
+        </div>
+        <div className="rhythm-day__items">
+          {streamItems.map((item) => (
+            <ChecklistItemRow
+              key={item.id}
+              item={item}
+              checked={Boolean(streamChecked?.[item.id])}
+              onToggleChecked={() => toggleStreamItem(item.id)}
+              onSaveEdit={(label, note) => updateItem.mutate({ id: item.id, label, note })}
+              onDelete={() => deleteItem.mutate(item.id)}
+            />
+          ))}
+          <AddChecklistItemForm onAdd={(label, note) => createItem.mutate({ groupKey: sundayStreamGroupKey, label, note })} isPending={createItem.isPending} />
+        </div>
+      </div>
     </>
   );
 }
@@ -123,12 +179,18 @@ function RhythmDayCard({
   day,
   items,
   checkedItems,
-  onToggle
+  onToggle,
+  onAdd,
+  onEdit,
+  onDelete
 }: {
   day: WeeklyRhythmDay;
-  items: ChecklistItemDef[];
+  items: ChecklistItem[];
   checkedItems: Record<string, boolean>;
-  onToggle: (key: string) => void;
+  onToggle: (id: string) => void;
+  onAdd: (label: string, note: string) => void;
+  onEdit: (id: string, label: string, note: string) => void;
+  onDelete: (id: string) => void;
 }) {
   const progress = calcChecklistProgress(checkedItems, items);
 
@@ -148,48 +210,17 @@ function RhythmDayCard({
       </div>
       <div className="rhythm-day__items">
         {items.map((item) => (
-          <ChecklistRow key={item.key} item={item} checked={Boolean(checkedItems[item.key])} onToggle={() => onToggle(item.key)} />
+          <ChecklistItemRow
+            key={item.id}
+            item={item}
+            checked={Boolean(checkedItems[item.id])}
+            onToggleChecked={() => onToggle(item.id)}
+            onSaveEdit={(label, note) => onEdit(item.id, label, note)}
+            onDelete={() => onDelete(item.id)}
+          />
         ))}
+        <AddChecklistItemForm onAdd={onAdd} />
       </div>
-    </div>
-  );
-}
-
-function RhythmChecklistCard({
-  items,
-  checkedItems,
-  onToggle
-}: {
-  items: ChecklistItemDef[];
-  checkedItems: Record<string, boolean>;
-  onToggle: (key: string) => void;
-}) {
-  const progress = calcChecklistProgress(checkedItems, items);
-
-  return (
-    <div className="rhythm-day">
-      <div className="rhythm-minibar">
-        <i style={{ width: `${progress.percent}%` }} />
-      </div>
-      <div className="rhythm-day__items">
-        {items.map((item) => (
-          <ChecklistRow key={item.key} item={item} checked={Boolean(checkedItems[item.key])} onToggle={() => onToggle(item.key)} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ChecklistRow({ item, checked, onToggle }: { item: ChecklistItemDef; checked: boolean; onToggle: () => void }) {
-  const inputId = `chk-${item.key}`;
-
-  return (
-    <div className={checked ? "rhythm-check rhythm-check--done" : "rhythm-check"}>
-      <input id={inputId} type="checkbox" checked={checked} onChange={onToggle} />
-      <label htmlFor={inputId}>
-        {item.label}
-        {item.note ? <em>{item.note}</em> : null}
-      </label>
     </div>
   );
 }

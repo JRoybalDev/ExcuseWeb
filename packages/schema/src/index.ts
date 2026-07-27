@@ -336,11 +336,49 @@ export function computeCalendarStats(entries: CalendarEntry[], todayIso: string)
 // ---- Shared checklist primitives (used by Weekly Rhythm and the per-video Production Checklist) ----
 export type ChecklistItemDef = { key: string; label: string; note?: string };
 
-export function calcChecklistProgress(checkedItems: Record<string, boolean>, items: ChecklistItemDef[]) {
+export function calcChecklistProgress(checkedItems: Record<string, boolean>, items: { id: string }[]) {
   const total = items.length;
-  const done = items.filter((item) => checkedItems[item.key]).length;
+  const done = items.filter((item) => checkedItems[item.id]).length;
   return { done, total, percent: total === 0 ? 0 : Math.round((100 * done) / total) };
 }
+
+// ---- Dynamic checklist items (DB-backed) ----
+// The item lists below (weeklyRhythmItems, sundayStreamChecklistItems, productionChecklistItems)
+// are now SEED DEFAULTS only, inserted once into `checklist_items` on first server boot. After that,
+// the database is the live source of truth — items can be added, edited, and deleted by the admin,
+// grouped by `groupKey`. Day/phase structure itself (which groups exist) stays fixed in code.
+export function weeklyRhythmGroupKey(day: (typeof weeklyRhythmDayValues)[number]): string {
+  return `weekly_rhythm:${day}`;
+}
+
+export const sundayStreamGroupKey = "sunday_stream";
+
+export function productionChecklistGroupKey(phase: (typeof productionChecklistPhaseValues)[number]): string {
+  return `production:${phase}`;
+}
+
+export const ChecklistItemSchema = z.object({
+  id: z.string().uuid(),
+  groupKey: z.string().min(1).max(120),
+  label: z.string().min(1).max(200),
+  note: z.string().max(300).default(""),
+  sortOrder: z.number().int().default(0),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime()
+});
+
+export const ChecklistItemDraftSchema = z.object({
+  groupKey: z.string().min(1).max(120),
+  label: z.string().min(1).max(200),
+  note: z.string().max(300).default("")
+});
+
+export const ChecklistItemUpdateSchema = z.object({
+  label: z.string().min(1).max(200),
+  note: z.string().max(300).default("")
+});
+
+export const ChecklistItemListSchema = z.array(ChecklistItemSchema);
 
 // ---- Weekly Rhythm Checklist (singleton, recurring — reset every Monday) ----
 export const weeklyRhythmDayValues = ["saturday", "sunday", "monday", "tuesday", "wednesday", "thursday_friday"] as const;
@@ -874,3 +912,8 @@ export type ProductionChecklistPhase = (typeof productionChecklistPhaseValues)[n
 export type CalendarChecklist = z.infer<typeof CalendarChecklistSchema>;
 export type CalendarChecklistUpdate = z.infer<typeof CalendarChecklistUpdateSchema>;
 export type CalendarChecklistUpdateInput = z.input<typeof CalendarChecklistUpdateSchema>;
+export type ChecklistItem = z.infer<typeof ChecklistItemSchema>;
+export type ChecklistItemDraft = z.infer<typeof ChecklistItemDraftSchema>;
+export type ChecklistItemDraftInput = z.input<typeof ChecklistItemDraftSchema>;
+export type ChecklistItemUpdate = z.infer<typeof ChecklistItemUpdateSchema>;
+export type ChecklistItemUpdateInput = z.input<typeof ChecklistItemUpdateSchema>;

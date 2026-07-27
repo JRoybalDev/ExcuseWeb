@@ -5,6 +5,8 @@ import {
   CalendarChecklistSchema,
   CalendarEntryListSchema,
   CalendarEntrySchema,
+  ChecklistItemListSchema,
+  ChecklistItemSchema,
   ScheduleEntryListSchema,
   ScheduleEntrySchema,
   SiteListSchema,
@@ -16,6 +18,8 @@ import {
   type CalendarAutoFillInput,
   type CalendarChecklistUpdateInput,
   type CalendarEntryDraftInput,
+  type ChecklistItemDraftInput,
+  type ChecklistItemUpdateInput,
   type ScheduleEntryDraftInput,
   type SiteDraft,
   type WeeklyRhythmUpdateInput
@@ -332,6 +336,47 @@ export const apiClient = {
           withAdminKey(adminKey, {
             method: "PUT",
             body: JSON.stringify(update)
+          })
+        )
+      );
+    }
+  },
+
+  checklistItems: {
+    async list(adminKey: string) {
+      return ChecklistItemListSchema.parse(await apiJson("/api/checklist-items", withAdminKey(adminKey)));
+    },
+
+    async create(adminKey: string, draft: ChecklistItemDraftInput) {
+      return ChecklistItemSchema.parse(
+        await apiJson(
+          "/api/checklist-items",
+          withAdminKey(adminKey, {
+            method: "POST",
+            body: JSON.stringify(draft)
+          })
+        )
+      );
+    },
+
+    async update(adminKey: string, id: string, update: ChecklistItemUpdateInput) {
+      return ChecklistItemSchema.parse(
+        await apiJson(
+          `/api/checklist-items/${encodeURIComponent(id)}`,
+          withAdminKey(adminKey, {
+            method: "PUT",
+            body: JSON.stringify(update)
+          })
+        )
+      );
+    },
+
+    async delete(adminKey: string, id: string) {
+      return ChecklistItemSchema.parse(
+        await apiJson(
+          `/api/checklist-items/${encodeURIComponent(id)}`,
+          withAdminKey(adminKey, {
+            method: "DELETE"
           })
         )
       );
