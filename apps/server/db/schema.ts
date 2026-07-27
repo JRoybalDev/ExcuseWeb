@@ -3,6 +3,8 @@ import {
   defaultSiteBranding,
   defaultSiteMetadata,
   type AuditDiagnosis,
+  type BuildRequestEraType,
+  type BuildRequestStatus,
   type CalendarPriority,
   type CalendarSlot,
   type CalendarStatus,
@@ -119,6 +121,20 @@ export const auditRuns = pgTable("audit_runs", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
 });
 
+export const buildRequests = pgTable("build_requests", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  shoutoutName: text("shoutout_name").notNull(),
+  buildIdea: text("build_idea").notNull(),
+  eraType: text("era_type").$type<BuildRequestEraType>().notNull(),
+  specificMap: text("specific_map").notNull().default(""),
+  specificAdditions: text("specific_additions").notNull().default(""),
+  imageUrl: text("image_url").notNull().default(""),
+  uploadId: uuid("upload_id").references(() => uploads.id, { onDelete: "set null" }),
+  status: text("status").$type<BuildRequestStatus>().notNull().default("new"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});
+
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -189,3 +205,5 @@ export type CalendarChecklistRow = typeof calendarChecklists.$inferSelect;
 export type NewCalendarChecklistRow = typeof calendarChecklists.$inferInsert;
 export type ChecklistItemRow = typeof checklistItems.$inferSelect;
 export type NewChecklistItemRow = typeof checklistItems.$inferInsert;
+export type BuildRequestRow = typeof buildRequests.$inferSelect;
+export type NewBuildRequestRow = typeof buildRequests.$inferInsert;

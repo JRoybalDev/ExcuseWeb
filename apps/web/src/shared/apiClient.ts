@@ -1,6 +1,8 @@
 import {
   AuditRunListSchema,
   AuditRunSchema,
+  BuildRequestListSchema,
+  BuildRequestSchema,
   CalendarAutoFillResultSchema,
   CalendarChecklistSchema,
   CalendarEntryListSchema,
@@ -15,6 +17,8 @@ import {
   UploadSchema,
   WeeklyRhythmStateSchema,
   type AuditRunDraftInput,
+  type BuildRequestDraftInput,
+  type BuildRequestStatus,
   type CalendarAutoFillInput,
   type CalendarChecklistUpdateInput,
   type CalendarEntryDraftInput,
@@ -420,6 +424,56 @@ export const apiClient = {
 
     async popular() {
       return (await apiJson("/api/youtube/popular")) as YouTubeVideo[];
+    }
+  },
+
+  buildRequests: {
+    async list(adminKey: string) {
+      return BuildRequestListSchema.parse(await apiJson("/api/build-requests", withAdminKey(adminKey)));
+    },
+
+    async submit(draft: BuildRequestDraftInput & { company?: string }) {
+      return BuildRequestSchema.parse(
+        await apiJson("/api/build-requests", {
+          method: "POST",
+          body: JSON.stringify(draft)
+        })
+      );
+    },
+
+    async uploadImage(file: File) {
+      const form = new FormData();
+      form.append("file", file);
+
+      return UploadSchema.parse(
+        await apiJson("/api/build-requests/upload", {
+          method: "POST",
+          body: form
+        })
+      );
+    },
+
+    async updateStatus(adminKey: string, id: string, status: BuildRequestStatus) {
+      return BuildRequestSchema.parse(
+        await apiJson(
+          `/api/build-requests/${encodeURIComponent(id)}`,
+          withAdminKey(adminKey, {
+            method: "PATCH",
+            body: JSON.stringify({ status })
+          })
+        )
+      );
+    },
+
+    async delete(adminKey: string, id: string) {
+      return BuildRequestSchema.parse(
+        await apiJson(
+          `/api/build-requests/${encodeURIComponent(id)}`,
+          withAdminKey(adminKey, {
+            method: "DELETE"
+          })
+        )
+      );
     }
   },
 

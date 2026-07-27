@@ -217,6 +217,58 @@ export const ScheduleEntryListSchema = z.array(ScheduleEntrySchema);
 
 export const isoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
 
+// ---- Build Requests ----
+export const buildRequestEraTypeValues = ["jurassic-park", "jurassic-world", "din", "ingen", "biosyn", "dfw", "mixed"] as const;
+
+export const buildRequestEraTypeLabels: Record<(typeof buildRequestEraTypeValues)[number], string> = {
+  "jurassic-park": "Jurassic Park",
+  "jurassic-world": "Jurassic World",
+  din: "DIN",
+  ingen: "InGen",
+  biosyn: "Biosyn",
+  dfw: "DFW",
+  mixed: "Mixed"
+};
+
+export const buildRequestStatusValues = ["new", "reviewing", "approved", "built", "declined"] as const;
+
+export const buildRequestStatusLabels: Record<(typeof buildRequestStatusValues)[number], string> = {
+  new: "New",
+  reviewing: "Reviewing",
+  approved: "Approved",
+  built: "Built",
+  declined: "Declined"
+};
+
+export const BuildRequestSchema = z.object({
+  id: z.string().uuid(),
+  shoutoutName: z.string().max(80),
+  buildIdea: z.string().max(2000),
+  eraType: z.enum(buildRequestEraTypeValues),
+  specificMap: z.string().max(160).default(""),
+  specificAdditions: z.string().max(1000).default(""),
+  imageUrl: z.string().max(2048).default(""),
+  uploadId: z.string().uuid().nullable().default(null),
+  status: z.enum(buildRequestStatusValues).default("new"),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime()
+});
+
+export const BuildRequestDraftSchema = z.object({
+  shoutoutName: z.string().trim().min(1, "Shoutout name is required").max(80, "Keep it under 80 characters"),
+  buildIdea: z.string().trim().min(10, "Tell us a bit more about the build").max(2000, "Keep it under 2000 characters"),
+  eraType: z.enum(buildRequestEraTypeValues),
+  specificMap: z.string().trim().max(160, "Keep it under 160 characters").default(""),
+  specificAdditions: z.string().trim().max(1000, "Keep it under 1000 characters").default(""),
+  uploadId: z.string().uuid().nullable().default(null)
+});
+
+export const BuildRequestStatusUpdateSchema = z.object({
+  status: z.enum(buildRequestStatusValues)
+});
+
+export const BuildRequestListSchema = z.array(BuildRequestSchema);
+
 // ---- Content Calendar ----
 export const calendarSlotValues = ["saturday_main", "wednesday_surprise", "sunday_stream"] as const;
 
@@ -889,6 +941,12 @@ export type ScheduleEntryType = (typeof scheduleEntryTypeValues)[number];
 export type ScheduleEntry = z.infer<typeof ScheduleEntrySchema>;
 export type ScheduleEntryDraft = z.infer<typeof ScheduleEntryDraftSchema>;
 export type ScheduleEntryDraftInput = z.input<typeof ScheduleEntryDraftSchema>;
+export type BuildRequestEraType = (typeof buildRequestEraTypeValues)[number];
+export type BuildRequestStatus = (typeof buildRequestStatusValues)[number];
+export type BuildRequest = z.infer<typeof BuildRequestSchema>;
+export type BuildRequestDraft = z.infer<typeof BuildRequestDraftSchema>;
+export type BuildRequestDraftInput = z.input<typeof BuildRequestDraftSchema>;
+export type BuildRequestStatusUpdate = z.infer<typeof BuildRequestStatusUpdateSchema>;
 export type Link = z.infer<typeof LinkSchema>;
 export type Upload = z.infer<typeof UploadSchema>;
 export type UploadList = z.infer<typeof UploadListSchema>;

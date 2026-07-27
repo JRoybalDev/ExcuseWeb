@@ -18,7 +18,7 @@ import { FiCheckSquare, FiDownload, FiPlus, FiSave, FiTrash2, FiZap } from "reac
 import { Link } from "react-router-dom";
 import { apiClient } from "../../../shared/apiClient";
 import { useDraftStore } from "../../../state/draftStore";
-import { SelectDropdown } from "../shared/SelectDropdown";
+import { SelectDropdown } from "../../../shared/SelectDropdown";
 import { calendarEntriesToCsv, downloadCalendarCsv } from "./calendarCsv";
 
 type DraftEntry = CalendarEntryDraftInput;

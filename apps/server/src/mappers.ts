@@ -3,6 +3,7 @@ import {
   SiteBrandingSchema,
   SiteMetadataSchema,
   type AuditRun,
+  type BuildRequest,
   type CalendarChecklist,
   type CalendarEntry,
   type ChecklistItem,
@@ -13,6 +14,7 @@ import {
 } from "@fullstack-template/schema";
 import type {
   AuditRunRow,
+  BuildRequestRow,
   CalendarChecklistRow,
   CalendarEntryRow,
   ChecklistItemRow,
@@ -117,6 +119,22 @@ export function toChecklistItem(row: ChecklistItemRow): ChecklistItem {
     label: row.label,
     note: row.note,
     sortOrder: row.sortOrder,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString()
+  };
+}
+
+export function toBuildRequest(row: BuildRequestRow): BuildRequest {
+  return {
+    id: row.id,
+    shoutoutName: row.shoutoutName,
+    buildIdea: row.buildIdea,
+    eraType: row.eraType,
+    specificMap: row.specificMap,
+    specificAdditions: row.specificAdditions,
+    imageUrl: row.imageUrl,
+    uploadId: row.uploadId,
+    status: row.status,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString()
   };

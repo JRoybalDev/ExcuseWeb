@@ -11,6 +11,7 @@ import { securityHeaders } from "./middleware/securityHeaders.ts";
 import { openApiHtml, openApiSpec } from "./openapi.ts";
 import { adminRoute } from "./routes/admin.ts";
 import { auditRoute } from "./routes/audit.ts";
+import { buildRequestsRoute } from "./routes/buildRequests.ts";
 import { calendarRoute } from "./routes/calendar.ts";
 import { checklistItemsRoute } from "./routes/checklistItems.ts";
 import { scheduleRoute } from "./routes/schedule.ts";
@@ -46,7 +47,7 @@ app.use(
   cors({
     origin: env.corsOrigins,
     allowHeaders: ["Content-Type", "X-Admin-Key"],
-    allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true
   })
 );
@@ -94,6 +95,7 @@ app.route("/api/audit", auditRoute);
 app.route("/api/weekly-rhythm", weeklyRhythmRoute);
 app.route("/api/calendar", calendarRoute);
 app.route("/api/checklist-items", checklistItemsRoute);
+app.route("/api/build-requests", buildRequestsRoute);
 app.use("/api/admin/*", adminRateLimit);
 app.route("/api/admin", adminRoute);
 app.use("/api/uploads/*", uploadRateLimit);

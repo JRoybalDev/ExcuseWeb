@@ -1,7 +1,8 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useAnimationControls, useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { FiGrid, FiHome, FiMonitor, FiMoon, FiSun } from "react-icons/fi";
+import { LoadingScreen } from "../shared/Loading";
 import { siteConfig } from "../shared/siteConfig";
 import { type ThemeMode, useThemeMode } from "../state/themeStore";
 
@@ -16,15 +17,19 @@ export function App() {
   const location = useLocation();
   const pathname = location.pathname.toLowerCase();
   const isDashboard = pathname.startsWith("/dashboard");
-  const isComingSoon = pathname === "/";
-  const hideChrome = isDashboard || isComingSoon;
+  const isResetPassword = pathname === "/reset-password";
+  // Every real page in this app is the full-bleed dark "park" theme except the generic
+  // template's reset-password screen — treat that as the one opt-in to chrome, rather than
+  // enumerating dark pages one by one (which silently misses new ones like the 404 catch-all).
+  const hideChrome = !isResetPassword;
+  const showPhotoBackground = hideChrome && !isDashboard;
   const [isTopbarScrolled, setIsTopbarScrolled] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const topbarControls = useAnimationControls();
   const wasTopbarScrolled = useRef(false);
   const mainClassName = isDashboard
     ? "app-main app-main--dashboard"
-    : isComingSoon
+    : hideChrome
       ? "app-main"
       : "app-main page-grid site-template-body";
   const shellClassName = hideChrome
@@ -78,6 +83,12 @@ export function App() {
 
   return (
     <div className={shellClassName}>
+      {showPhotoBackground ? (
+        <>
+          <div className="coming-soon-bg" style={{ backgroundImage: "url(/background.jpg)" }} />
+          <div className="coming-soon-scrim" />
+        </>
+      ) : null}
       {!hideChrome ? (
         <motion.header animate={topbarControls} className={isTopbarScrolled ? "topbar grid-area-header" : "topbar grid-area-header"}>
           <a className="brand" href="/">
@@ -115,7 +126,9 @@ export function App() {
       ) : null}
       {isDashboard ? (
         <main className={mainClassName}>
-          <Outlet />
+          <Suspense fallback={<LoadingScreen />}>
+            <Outlet />
+          </Suspense>
         </main>
       ) : (
         <AnimatePresence mode="wait">
@@ -127,7 +140,9 @@ export function App() {
             key={location.pathname}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Outlet />
+            <Suspense fallback={<LoadingScreen />}>
+              <Outlet />
+            </Suspense>
           </motion.main>
         </AnimatePresence>
       )}

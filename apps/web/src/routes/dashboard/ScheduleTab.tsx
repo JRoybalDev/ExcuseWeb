@@ -12,7 +12,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { FiEdit2, FiPlus, FiSave, FiTrash2 } from "react-icons/fi";
 import { apiClient } from "../../shared/apiClient";
 import { useDraftStore } from "../../state/draftStore";
-import { SelectDropdown } from "./shared/SelectDropdown";
+import { SelectDropdown } from "../../shared/SelectDropdown";
 
 type DraftEntry = {
   dayOfWeek: ScheduleDay;

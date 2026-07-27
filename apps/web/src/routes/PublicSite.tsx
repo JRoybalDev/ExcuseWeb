@@ -2,13 +2,14 @@ import { scheduleDayLabels, scheduleEntryTypeLabels, type ScheduleDay } from "@f
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FaDiscord, FaInstagram, FaTiktok, FaTwitch, FaTwitter, FaYoutube } from "react-icons/fa";
+import { FiArrowRight } from "react-icons/fi";
+import { Link } from "react-router-dom";
 import { apiClient, type YouTubeVideo } from "../shared/apiClient";
 import { setDocumentTitle, setSiteFavicon, siteConfig } from "../shared/siteConfig";
 
 const CHANNEL_NAME = "ExcuseMeImJack";
 
 const LOGO_URL = "/logo.png";
-const BACKGROUND_URL = "/background.jpg";
 const QR_CODE_URL = "/discord-qr.png";
 const DISCORD_URL = "https://discord.gg/fKW2eCsqqR";
 const NEXT_REMAKE_PERCENT = 0;
@@ -128,9 +129,6 @@ export function PublicSite() {
 
   return (
     <div className="coming-soon-page">
-      <div className="coming-soon-bg" style={{ backgroundImage: `url(${BACKGROUND_URL})` }} />
-      <div className="coming-soon-scrim" />
-
       <div className="coming-soon-content">
         <section className="coming-soon-hero">
           <span className="coming-soon-eyebrow">{CHANNEL_NAME}</span>
@@ -144,6 +142,9 @@ export function PublicSite() {
               </a>
             ))}
           </div>
+          <Link className="coming-soon-pitch-link" to="/build-requests">
+            Pitch me a build <FiArrowRight aria-hidden />
+          </Link>
         </section>
 
         <section className="schedule-panel">

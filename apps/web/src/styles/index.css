@@ -3,7 +3,7 @@
 
 :root {
   color: var(--app-text);
-  background: var(--app-bg);
+  background: #1b1411;
   font-family: var(--brand-font-sans);
 }
 
@@ -12,7 +12,7 @@
 }
 
 body {
-  background: var(--app-bg);
+  background: #1b1411;
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
@@ -31,7 +31,7 @@ select {
 }
 
 .app-shell {
-  background: var(--app-bg);
+  background: #1b1411;
   color: var(--app-text);
   min-height: 100vh;
 }
@@ -252,58 +252,27 @@ select {
 
 .loading-screen {
   align-items: center;
-  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
-  border: 1px solid var(--app-border);
-  border-radius: 8px;
-  color: var(--app-heading);
+  color: #f3e6d8;
   display: flex;
-  font-weight: 800;
-  gap: 12px;
-  grid-column: content;
+  flex-direction: column;
+  font-family: var(--font-sans, inherit);
+  font-size: 0.82rem;
+  font-weight: 700;
+  gap: 14px;
   justify-content: center;
-  margin-top: var(--template-header-offset, 24px);
-  min-height: min(42vh, 24rem);
+  letter-spacing: 0.04em;
+  min-height: 60vh;
   padding: 24px;
+  text-transform: uppercase;
 }
 
 .loading-spinner {
   animation: loading-spin 0.86s linear infinite;
-  border: 3px solid color-mix(in srgb, var(--app-accent) 20%, transparent);
+  border: 3px solid rgba(196, 151, 110, 0.22);
   border-radius: 999px;
-  border-top-color: var(--app-accent);
-  height: 28px;
-  width: 28px;
-}
-
-.not-found-page {
-  display: grid;
-  min-height: calc(100vh - 160px);
-  place-items: center;
-  padding: var(--template-header-offset, 24px) 0 clamp(24px, 5vw, 64px);
-}
-
-.not-found-panel {
-  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
-  border: 1px solid var(--app-border);
-  border-radius: 8px;
-  display: grid;
-  gap: 16px;
-  max-width: 520px;
-  padding: clamp(24px, 5vw, 42px);
-  width: 100%;
-}
-
-.not-found-panel h1 {
-  color: var(--app-heading);
-  font-size: clamp(2.25rem, 6vw, 4rem);
-  line-height: 1;
-  margin: 0;
-}
-
-.not-found-panel p {
-  color: var(--app-muted);
-  line-height: 1.65;
-  margin: 0;
+  border-top-color: #c4976e;
+  height: 30px;
+  width: 30px;
 }
 
 @keyframes loading-spin {

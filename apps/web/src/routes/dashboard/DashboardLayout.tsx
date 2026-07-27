@@ -1,8 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, Suspense, useEffect, useState } from "react";
 import { FiExternalLink, FiLock, FiLogOut } from "react-icons/fi";
 import { Link, Outlet } from "react-router-dom";
 import { apiClient } from "../../shared/apiClient";
+import { LoadingScreen } from "../../shared/Loading";
 import { setDocumentTitle, siteConfig } from "../../shared/siteConfig";
 import { useDraftStore } from "../../state/draftStore";
 import { useThemeMode } from "../../state/themeStore";
@@ -38,35 +39,37 @@ export function DashboardLayout() {
 
   return (
     <div className={`admin-dashboard dashboard-theme-${resolvedTheme}`}>
-      <div className="admin-shell-top">
-        <header className="admin-header">
-          <div className="admin-header__brand">
-            <span className="admin-header__mark">EJ</span>
-            <span className="admin-header__name">Operations Center</span>
-            <span className="admin-tag">admin</span>
-          </div>
-          <div className="admin-header__actions">
-            <Link className="admin-header__link" to="/" target="_blank" rel="noreferrer">
-              View live site <FiExternalLink aria-hidden />
-            </Link>
-            <span className="admin-status-pill">
-              <span className="admin-status-pill__dot" />
-              Published — changes go live instantly
-            </span>
-            <button className="admin-button admin-button--secondary" type="button" onClick={() => void lockDashboard()}>
-              <FiLogOut aria-hidden /> Sign out
-            </button>
-          </div>
-        </header>
-
-        <DashboardNav />
-      </div>
-
-      <main className="admin-main">
-        <div className="admin-main__inner">
-          <Outlet />
+      <header className="admin-header">
+        <div className="admin-header__brand">
+          <span className="admin-header__mark">EJ</span>
+          <span className="admin-header__name">Operations Center</span>
+          <span className="admin-tag">admin</span>
         </div>
-      </main>
+        <div className="admin-header__actions">
+          <Link className="admin-header__link" to="/" target="_blank" rel="noreferrer">
+            View live site <FiExternalLink aria-hidden />
+          </Link>
+          <span className="admin-status-pill">
+            <span className="admin-status-pill__dot" />
+            Published — changes go live instantly
+          </span>
+          <button className="admin-button admin-button--secondary" type="button" onClick={() => void lockDashboard()}>
+            <FiLogOut aria-hidden /> Sign out
+          </button>
+        </div>
+      </header>
+
+      <div className="admin-shell-body">
+        <DashboardNav />
+
+        <main className="admin-main">
+          <div className="admin-main__inner">
+            <Suspense fallback={<LoadingScreen />}>
+              <Outlet />
+            </Suspense>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

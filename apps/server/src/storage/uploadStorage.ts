@@ -57,7 +57,7 @@ function assertCloudinaryConfigured() {
   });
 }
 
-async function uploadToCloudinary(file: File): Promise<UploadApiResponse> {
+async function uploadToCloudinary(file: File, folder: string): Promise<UploadApiResponse> {
   assertCloudinaryConfigured();
 
   const arrayBuffer = await file.arrayBuffer();
@@ -66,7 +66,7 @@ async function uploadToCloudinary(file: File): Promise<UploadApiResponse> {
   return new Promise((resolve, reject) => {
     const upload = cloudinary.uploader.upload_stream(
       {
-        folder: env.cloudinaryFolder,
+        folder,
         resource_type: "auto",
         use_filename: true,
         unique_filename: true
@@ -85,8 +85,8 @@ async function uploadToCloudinary(file: File): Promise<UploadApiResponse> {
   });
 }
 
-async function storeCloudinaryUpload(file: File): Promise<StoredUpload> {
-  const result = await uploadToCloudinary(file);
+async function storeCloudinaryUpload(file: File, folder: string): Promise<StoredUpload> {
+  const result = await uploadToCloudinary(file, folder);
   const thumbnailUrl =
     result.resource_type === "image"
       ? cloudinary.url(result.public_id, {
@@ -104,9 +104,9 @@ async function storeCloudinaryUpload(file: File): Promise<StoredUpload> {
   };
 }
 
-export async function storeUpload(file: File): Promise<StoredUpload> {
+export async function storeUpload(file: File, folder?: string): Promise<StoredUpload> {
   if (env.storageDriver === "cloudinary") {
-    return storeCloudinaryUpload(file);
+    return storeCloudinaryUpload(file, folder ?? env.cloudinaryFolder);
   }
 
   return storeLocalUpload(file);

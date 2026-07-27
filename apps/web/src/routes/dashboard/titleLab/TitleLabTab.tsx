@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { apiClient } from "../../../shared/apiClient";
 import { useDraftStore } from "../../../state/draftStore";
-import { SelectDropdown } from "../shared/SelectDropdown";
+import { SelectDropdown } from "../../../shared/SelectDropdown";
 
 function entryToDraft(entry: CalendarEntry): CalendarEntryDraftInput {
   return {
