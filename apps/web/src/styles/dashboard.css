@@ -545,15 +545,11 @@
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   list-style: none;
-  margin: 6px 0 0;
+  margin: 0;
   max-height: 240px;
   overflow-y: auto;
   padding: 4px;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 20;
+  z-index: 1000;
 }
 
 .select-dropdown__option {
