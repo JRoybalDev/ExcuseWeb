@@ -159,18 +159,24 @@
   width: 68px;
 }
 
+.admin-sidebar--collapsed .admin-sidebar__toggle {
+  align-self: center;
+}
+
 .admin-sidebar__toggle {
   align-items: center;
+  align-self: flex-end;
   background: none;
   border: none;
   border-radius: var(--radius-sm);
   color: var(--muted-2);
   cursor: pointer;
   display: flex;
+  flex: none;
+  height: 32px;
   justify-content: center;
   margin-bottom: 8px;
-  padding: 8px 10px;
-  width: 100%;
+  width: 32px;
 }
 
 .admin-sidebar__toggle:hover {
@@ -1006,7 +1012,7 @@
   background: var(--surface-2);
 }
 
-.rhythm-check input {
+.rhythm-check > input[type="checkbox"] {
   accent-color: var(--accent);
   height: 15px;
   margin-top: 3px;
@@ -1205,10 +1211,12 @@
   background: var(--surface-2);
   border: 1px solid var(--line-2);
   border-radius: 6px;
+  box-sizing: border-box;
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 0.76rem;
   padding: 5px 8px;
+  width: 100%;
 }
 
 .titlelab-picker {
