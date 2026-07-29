@@ -1215,9 +1215,11 @@
 }
 
 .richtext__toolbar {
+  align-items: center;
   background: var(--surface-2);
   border-bottom: 1px solid var(--line-2);
   display: flex;
+  flex-wrap: wrap;
   gap: 2px;
   padding: 4px;
 }
@@ -1230,10 +1232,19 @@
   color: var(--muted);
   cursor: pointer;
   display: flex;
+  flex-shrink: 0;
   font-size: 0.7rem;
   height: 22px;
   justify-content: center;
   width: 22px;
+}
+
+.richtext__btn--text {
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0 5px;
+  width: auto;
 }
 
 .richtext__btn:hover {
@@ -1251,6 +1262,28 @@
 .richtext__btn--active:hover {
   background: var(--accent);
   color: var(--surface);
+}
+
+.richtext__divider {
+  align-self: stretch;
+  background: var(--line-2);
+  flex-shrink: 0;
+  margin: 2px 2px;
+  width: 1px;
+}
+
+.richtext__count {
+  color: var(--muted);
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.richtext__count--over {
+  color: var(--danger);
 }
 
 .richtext__area {
@@ -1274,6 +1307,47 @@
 .richtext__area:empty::before {
   color: var(--muted);
   content: attr(data-placeholder);
+}
+
+.richtext__area ul,
+.richtext__area ol {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.richtext__area ul {
+  list-style-type: disc;
+}
+
+.richtext__area ol {
+  list-style-type: decimal;
+}
+
+.richtext__area li {
+  display: list-item;
+  margin-bottom: 2px;
+}
+
+.richtext__area h1,
+.richtext__area h2,
+.richtext__area h3 {
+  color: var(--text);
+  font-family: var(--font-head);
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 6px 0 4px;
+}
+
+.richtext__area h1 {
+  font-size: 1.05rem;
+}
+
+.richtext__area h2 {
+  font-size: 0.94rem;
+}
+
+.richtext__area h3 {
+  font-size: 0.84rem;
 }
 
 .titlelab-picker {

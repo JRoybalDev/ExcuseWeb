@@ -17,6 +17,15 @@ import { AddChecklistItemForm } from "../shared/AddChecklistItemForm";
 import { ChecklistItemRow } from "../shared/ChecklistItemRow";
 import { RichTextArea } from "../shared/RichTextArea";
 
+const NOTE_MAX_LENGTH_DEFAULT = 2000;
+const NOTE_MAX_LENGTH_OVERRIDES: Record<string, number> = {
+  "Write the 90-second hook script": 15000
+};
+
+function noteMaxLength(label: string) {
+  return NOTE_MAX_LENGTH_OVERRIDES[label] ?? NOTE_MAX_LENGTH_DEFAULT;
+}
+
 export function ProductionChecklistTab() {
   const { entryId } = useParams<{ entryId: string }>();
   const queryClient = useQueryClient();
@@ -211,6 +220,7 @@ function PhaseCard({
             <RichTextArea
               value={itemNotes[item.id] ?? ""}
               placeholder="Add a note..."
+              maxLength={noteMaxLength(item.label)}
               onChange={(html) => onNoteChange(item.id, html)}
               onBlur={(html) => onNoteBlur(item.id, html)}
             />
