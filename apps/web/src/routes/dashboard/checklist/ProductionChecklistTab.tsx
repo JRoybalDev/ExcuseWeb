@@ -105,6 +105,10 @@ export function ProductionChecklistTab() {
     updateMutation.mutate({ checkedItems: checkedItems ?? {}, itemNotes: nextNotes });
   }
 
+  function clearNote(id: string) {
+    saveNote(id, "");
+  }
+
   const entry = calendar.data?.find((row) => row.id === entryId);
   const allItems = productionChecklistPhaseValues.flatMap((phase) => itemsByGroup.get(productionChecklistGroupKey(phase)) ?? []);
   const overall = calcChecklistProgress(checkedItems ?? {}, allItems);
@@ -140,6 +144,7 @@ export function ProductionChecklistTab() {
             onToggle={toggleItem}
             onNoteChange={updateNoteLocal}
             onNoteBlur={saveNote}
+            onNoteClear={clearNote}
             onAdd={(label, note) => createItem.mutate({ groupKey: productionChecklistGroupKey(phase), label, note })}
             onEdit={(id, label, note) => updateItem.mutate({ id, label, note })}
             onDelete={(id) => deleteItem.mutate(id)}
@@ -158,6 +163,7 @@ function PhaseCard({
   onToggle,
   onNoteChange,
   onNoteBlur,
+  onNoteClear,
   onAdd,
   onEdit,
   onDelete
@@ -169,6 +175,7 @@ function PhaseCard({
   onToggle: (id: string) => void;
   onNoteChange: (id: string, value: string) => void;
   onNoteBlur: (id: string, value: string) => void;
+  onNoteClear: (id: string) => void;
   onAdd: (label: string, note: string) => void;
   onEdit: (id: string, label: string, note: string) => void;
   onDelete: (id: string) => void;
@@ -198,6 +205,8 @@ function PhaseCard({
             onToggleChecked={() => onToggle(item.id)}
             onSaveEdit={(label, note) => onEdit(item.id, label, note)}
             onDelete={() => onDelete(item.id)}
+            onClear={() => onNoteClear(item.id)}
+            clearDisabled={!itemNotes[item.id]}
           >
             <RichTextArea
               value={itemNotes[item.id] ?? ""}

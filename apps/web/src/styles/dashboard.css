@@ -1242,6 +1242,17 @@
   color: var(--text);
 }
 
+.richtext__btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--surface);
+}
+
+.richtext__btn--active:hover {
+  background: var(--accent);
+  color: var(--surface);
+}
+
 .richtext__area {
   background: var(--surface-2);
   box-sizing: border-box;
@@ -1250,7 +1261,9 @@
   font-size: 0.76rem;
   line-height: 1.4;
   min-height: 60px;
+  overflow-wrap: anywhere;
   padding: 6px 8px;
+  white-space: pre-wrap;
   width: 100%;
 }
 
@@ -1381,6 +1394,16 @@
 
 .checklist-item__icon-btn--danger:hover {
   color: var(--danger);
+}
+
+.checklist-item__icon-btn:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.checklist-item__icon-btn:disabled:hover {
+  background: transparent;
+  color: var(--muted);
 }
 
 .checklist-item--editing {

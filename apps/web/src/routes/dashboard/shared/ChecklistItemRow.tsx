@@ -1,6 +1,6 @@
 import type { ChecklistItem } from "@fullstack-template/schema";
 import { type ReactNode, useEffect, useState } from "react";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiX } from "react-icons/fi";
 
 export function ChecklistItemRow({
   item,
@@ -8,6 +8,8 @@ export function ChecklistItemRow({
   onToggleChecked,
   onSaveEdit,
   onDelete,
+  onClear,
+  clearDisabled,
   children
 }: {
   item: ChecklistItem;
@@ -15,6 +17,8 @@ export function ChecklistItemRow({
   onToggleChecked: () => void;
   onSaveEdit: (label: string, note: string) => void;
   onDelete: () => void;
+  onClear?: () => void;
+  clearDisabled?: boolean;
   children?: ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
@@ -76,12 +80,26 @@ export function ChecklistItemRow({
         {children}
       </div>
       <div className="checklist-item__row-actions">
-        <button type="button" className="checklist-item__icon-btn" aria-label="Edit item" onClick={() => setEditing(true)}>
-          <FiEdit2 aria-hidden />
-        </button>
-        <button type="button" className="checklist-item__icon-btn checklist-item__icon-btn--danger" aria-label="Delete item" onClick={onDelete}>
-          <FiTrash2 aria-hidden />
-        </button>
+        {onClear ? (
+          <button
+            type="button"
+            className="checklist-item__icon-btn"
+            aria-label="Clear note"
+            disabled={clearDisabled}
+            onClick={onClear}
+          >
+            <FiX aria-hidden />
+          </button>
+        ) : (
+          <>
+            <button type="button" className="checklist-item__icon-btn" aria-label="Edit item" onClick={() => setEditing(true)}>
+              <FiEdit2 aria-hidden />
+            </button>
+            <button type="button" className="checklist-item__icon-btn checklist-item__icon-btn--danger" aria-label="Delete item" onClick={onDelete}>
+              <FiTrash2 aria-hidden />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

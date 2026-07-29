@@ -1,5 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaBold, FaItalic, FaUnderline } from "react-icons/fa";
+
+type FormatCommand = "bold" | "italic" | "underline";
 
 export function RichTextArea({
   value,
@@ -14,6 +16,11 @@ export function RichTextArea({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const lastValue = useRef<string | null>(null);
+  const [activeFormats, setActiveFormats] = useState<Record<FormatCommand, boolean>>({
+    bold: false,
+    italic: false,
+    underline: false
+  });
 
   useEffect(() => {
     if (ref.current && value !== lastValue.current) {
@@ -22,16 +29,33 @@ export function RichTextArea({
     }
   }, [value]);
 
+  function currentHtml() {
+    const el = ref.current;
+    if (!el) {
+      return "";
+    }
+    return el.textContent?.trim() ? el.innerHTML : "";
+  }
+
   function emit() {
-    const html = ref.current?.innerHTML ?? "";
+    const html = currentHtml();
     lastValue.current = html;
     onChange(html);
   }
 
-  function format(command: "bold" | "italic" | "underline") {
+  function updateActiveFormats() {
+    setActiveFormats({
+      bold: document.queryCommandState("bold"),
+      italic: document.queryCommandState("italic"),
+      underline: document.queryCommandState("underline")
+    });
+  }
+
+  function format(command: FormatCommand) {
     ref.current?.focus();
     document.execCommand(command);
     emit();
+    updateActiveFormats();
   }
 
   return (
@@ -39,8 +63,9 @@ export function RichTextArea({
       <div className="richtext__toolbar">
         <button
           type="button"
-          className="richtext__btn"
+          className={activeFormats.bold ? "richtext__btn richtext__btn--active" : "richtext__btn"}
           aria-label="Bold"
+          aria-pressed={activeFormats.bold}
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => format("bold")}
         >
@@ -48,8 +73,9 @@ export function RichTextArea({
         </button>
         <button
           type="button"
-          className="richtext__btn"
+          className={activeFormats.italic ? "richtext__btn richtext__btn--active" : "richtext__btn"}
           aria-label="Italic"
+          aria-pressed={activeFormats.italic}
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => format("italic")}
         >
@@ -57,8 +83,9 @@ export function RichTextArea({
         </button>
         <button
           type="button"
-          className="richtext__btn"
+          className={activeFormats.underline ? "richtext__btn richtext__btn--active" : "richtext__btn"}
           aria-label="Underline"
+          aria-pressed={activeFormats.underline}
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => format("underline")}
         >
@@ -72,7 +99,18 @@ export function RichTextArea({
         suppressContentEditableWarning
         data-placeholder={placeholder}
         onInput={emit}
-        onBlur={() => onBlur(ref.current?.innerHTML ?? "")}
+        onKeyUp={updateActiveFormats}
+        onMouseUp={updateActiveFormats}
+        onFocus={updateActiveFormats}
+        onBlur={() => {
+          const html = currentHtml();
+          if (!html && ref.current) {
+            ref.current.innerHTML = "";
+            lastValue.current = "";
+          }
+          onBlur(html);
+          setActiveFormats({ bold: false, italic: false, underline: false });
+        }}
       />
     </div>
   );
