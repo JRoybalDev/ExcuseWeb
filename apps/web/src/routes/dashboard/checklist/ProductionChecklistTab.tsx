@@ -15,6 +15,7 @@ import { apiClient } from "../../../shared/apiClient";
 import { useDraftStore } from "../../../state/draftStore";
 import { AddChecklistItemForm } from "../shared/AddChecklistItemForm";
 import { ChecklistItemRow } from "../shared/ChecklistItemRow";
+import { RichTextArea } from "../shared/RichTextArea";
 
 export function ProductionChecklistTab() {
   const { entryId } = useParams<{ entryId: string }>();
@@ -198,13 +199,11 @@ function PhaseCard({
             onSaveEdit={(label, note) => onEdit(item.id, label, note)}
             onDelete={() => onDelete(item.id)}
           >
-            <input
-              className="checklist-item__note"
-              type="text"
-              placeholder="Add a note..."
+            <RichTextArea
               value={itemNotes[item.id] ?? ""}
-              onChange={(event) => onNoteChange(item.id, event.target.value)}
-              onBlur={(event) => onNoteBlur(item.id, event.target.value)}
+              placeholder="Add a note..."
+              onChange={(html) => onNoteChange(item.id, html)}
+              onBlur={(html) => onNoteBlur(item.id, html)}
             />
           </ChecklistItemRow>
         ))}

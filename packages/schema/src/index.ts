@@ -615,14 +615,14 @@ export const CalendarChecklistSchema = z.object({
   id: z.string().uuid(),
   calendarEntryId: z.string().uuid(),
   checkedItems: z.record(z.string(), z.boolean()).default({}),
-  itemNotes: z.record(z.string(), z.string().max(500)).default({}),
+  itemNotes: z.record(z.string(), z.string().max(2000)).default({}),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime()
 });
 
 export const CalendarChecklistUpdateSchema = z.object({
   checkedItems: z.record(z.string(), z.boolean()).default({}),
-  itemNotes: z.record(z.string(), z.string().max(500)).default({})
+  itemNotes: z.record(z.string(), z.string().max(2000)).default({})
 });
 
 // ---- 14-Day Audit ----
