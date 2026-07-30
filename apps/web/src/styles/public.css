@@ -527,13 +527,30 @@
 /* Scoped under .coming-soon-page, not .cs-select: SelectDropdown portals this menu to the
    nearest .coming-soon-page ancestor (see SelectDropdown.tsx), landing as a sibling of
    .cs-select rather than inside it. Scoping to .coming-soon-page keeps the --cs-* variables
-   in scope and outranks dashboard.css's unscoped .select-dropdown__menu on specificity. */
-.coming-soon-page .select-dropdown__menu {
+   in scope and outranks dashboard.css's unscoped .select-dropdown__panel on specificity. */
+.coming-soon-page .select-dropdown__panel {
   background: var(--cs-card);
   border: 1px solid var(--cs-card-border);
   border-radius: var(--radius-sm);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
   margin-top: 6px;
+}
+
+.coming-soon-page .select-dropdown__search {
+  border-bottom: 1px solid var(--cs-card-border);
+  color: var(--cs-muted);
+}
+
+.coming-soon-page .select-dropdown__search input {
+  color: var(--cs-text);
+}
+
+.coming-soon-page .select-dropdown__group-label {
+  color: var(--cs-muted);
+}
+
+.coming-soon-page .select-dropdown__empty {
+  color: var(--cs-muted);
 }
 
 .coming-soon-page .select-dropdown__option {

@@ -1,27 +1,50 @@
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { Fragment, type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { FiChevronDown } from "react-icons/fi";
+import { FiChevronDown, FiSearch } from "react-icons/fi";
 
 const MENU_MAX_HEIGHT = 240;
 const MENU_GAP = 6;
 
+export type SelectOption<T extends string> = { value: T; label: string };
+export type SelectGroup<T extends string> = { label: string; options: SelectOption<T>[] };
+
 export function SelectDropdown<T extends string>({
   value,
   options,
+  groups,
   onChange,
-  className
+  className,
+  searchable,
+  searchPlaceholder = "Search…"
 }: {
   value: T;
-  options: { value: T; label: string }[];
+  options?: SelectOption<T>[];
+  groups?: SelectGroup<T>[];
   onChange: (value: T) => void;
   className?: string;
+  searchable?: boolean;
+  searchPlaceholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState<CSSProperties | null>(null);
+  const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLUListElement>(null);
-  const selected = options.find((option) => option.value === value);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const resolvedGroups = useMemo<SelectGroup<T>[]>(() => groups ?? [{ label: "", options: options ?? [] }], [groups, options]);
+  const selected = useMemo(
+    () => resolvedGroups.flatMap((group) => group.options).find((option) => option.value === value),
+    [resolvedGroups, value]
+  );
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleGroups = normalizedQuery
+    ? resolvedGroups
+        .map((group) => ({ ...group, options: group.options.filter((option) => option.label.toLowerCase().includes(normalizedQuery)) }))
+        .filter((group) => group.options.length > 0)
+    : resolvedGroups;
 
   // Both the dashboard and the public/coming-soon pages scope their color tokens to a
   // wrapper class (`.admin-dashboard`, `.coming-soon-page`) rather than `:root`, so a menu
@@ -31,6 +54,7 @@ export function SelectDropdown<T extends string>({
 
   useEffect(() => {
     if (!open) {
+      setQuery("");
       return;
     }
 
@@ -77,7 +101,18 @@ export function SelectDropdown<T extends string>({
       window.removeEventListener("scroll", updatePosition, true);
       window.removeEventListener("resize", updatePosition);
     };
-  }, [open]);
+  }, [open, searchable]);
+
+  // Runs after the render where menuStyle actually becomes non-null (i.e. once the portal —
+  // and the search input inside it — has committed to the DOM), so the ref is guaranteed to
+  // be attached. A single combined effect can't guarantee that: on the render that flips
+  // `open` to true, `menuStyle` is still the old value, so the portal doesn't mount until a
+  // second render triggered by updatePosition() above.
+  useEffect(() => {
+    if (open && searchable && menuStyle) {
+      searchInputRef.current?.focus();
+    }
+  }, [open, searchable, menuStyle]);
 
   return (
     <div className={className ? `select-dropdown ${className}` : "select-dropdown"} ref={containerRef}>
@@ -87,6 +122,7 @@ export function SelectDropdown<T extends string>({
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
+        onMouseDown={searchable ? (event) => event.preventDefault() : undefined}
         ref={triggerRef}
       >
         <span>{selected?.label ?? ""}</span>
@@ -94,26 +130,47 @@ export function SelectDropdown<T extends string>({
       </button>
       {open && menuStyle
         ? createPortal(
-            <ul className="select-dropdown__menu" role="listbox" style={menuStyle} ref={menuRef}>
-              {options.map((option) => (
-                <li key={option.value}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={option.value === value}
-                    className={
-                      option.value === value ? "select-dropdown__option select-dropdown__option--active" : "select-dropdown__option"
-                    }
-                    onClick={() => {
-                      onChange(option.value);
-                      setOpen(false);
-                    }}
-                  >
-                    {option.label}
-                  </button>
-                </li>
-              ))}
-            </ul>,
+            <div className="select-dropdown__panel" style={menuStyle} ref={menuRef}>
+              {searchable ? (
+                <div className="select-dropdown__search">
+                  <FiSearch aria-hidden />
+                  <input ref={searchInputRef} type="text" placeholder={searchPlaceholder} value={query} onChange={(event) => setQuery(event.target.value)} />
+                </div>
+              ) : null}
+              <ul className="select-dropdown__menu" role="listbox">
+                {visibleGroups.length === 0 ? (
+                  <li className="select-dropdown__empty">No matches</li>
+                ) : (
+                  visibleGroups.map((group, groupIndex) => (
+                    <Fragment key={group.label || groupIndex}>
+                      {group.label ? (
+                        <li className="select-dropdown__group-label" role="presentation">
+                          {group.label}
+                        </li>
+                      ) : null}
+                      {group.options.map((option) => (
+                        <li key={option.value}>
+                          <button
+                            type="button"
+                            role="option"
+                            aria-selected={option.value === value}
+                            className={
+                              option.value === value ? "select-dropdown__option select-dropdown__option--active" : "select-dropdown__option"
+                            }
+                            onClick={() => {
+                              onChange(option.value);
+                              setOpen(false);
+                            }}
+                          >
+                            {option.label}
+                          </button>
+                        </li>
+                      ))}
+                    </Fragment>
+                  ))
+                )}
+              </ul>
+            </div>,
             portalTarget
           )
         : null}

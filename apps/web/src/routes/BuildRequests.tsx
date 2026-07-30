@@ -3,7 +3,7 @@ import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { FiArrowLeft, FiArrowRight, FiImage, FiX } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { apiClient } from "../shared/apiClient";
-import { SelectDropdown } from "../shared/SelectDropdown";
+import { SelectDropdown, type SelectGroup } from "../shared/SelectDropdown";
 import { setDocumentTitle } from "../shared/siteConfig";
 
 const CHANNEL_NAME = "ExcuseMeImJack";
@@ -14,6 +14,37 @@ const eraTypeOptions: { value: BuildRequestEraType | ""; label: string }[] = [
   ...buildRequestEraTypeValues.map((value) => ({ value, label: buildRequestEraTypeLabels[value] }))
 ];
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+
+function mapOptions(labels: string[]) {
+  return labels.map((label) => ({ value: label, label }));
+}
+
+const specificMapGroups: SelectGroup<string>[] = [
+  { label: "", options: [{ value: "", label: "Not specified (optional)" }] },
+  {
+    label: "Campaign",
+    options: mapOptions([
+      "Badlands",
+      "Kauai",
+      "Clark County",
+      "Nusa Tenggara Islands",
+      "Sichuan Basin",
+      "Katsuyama",
+      "San Albertus Island",
+      "Azores Archipelago",
+      "Biosyn Sanctuary",
+      "Lockwood Estate"
+    ])
+  },
+  {
+    label: "Rebirth Expansion",
+    options: mapOptions(["Main Facility", "Ancient Valley", "Riverside Laboratory"])
+  },
+  {
+    label: "Legacy",
+    options: mapOptions(["Isla Nublar 1993", "Isla Sorna", "Isla Nublar 2015", "Canada", "Germany", "United Kingdom", "Northwest USA", "Southwest USA"])
+  }
+];
 
 const emptyForm = {
   shoutoutName: "",
@@ -214,15 +245,17 @@ export function BuildRequests() {
                 <SelectDropdown className="cs-select" value={form.eraType} options={eraTypeOptions} onChange={(value) => updateField("eraType", value)} />
               </div>
 
-              <label className="build-request-field">
+              <div className="build-request-field">
                 <span>Specific map?</span>
-                <input
-                  placeholder="e.g. Isla Nublar, Patagonia… (optional)"
-                  maxLength={160}
+                <SelectDropdown
+                  className="cs-select"
                   value={form.specificMap}
-                  onChange={(event) => updateField("specificMap", event.target.value)}
+                  groups={specificMapGroups}
+                  searchable
+                  searchPlaceholder="Search maps…"
+                  onChange={(value) => updateField("specificMap", value)}
                 />
-              </label>
+              </div>
 
               <label className="build-request-field">
                 <span>Specific additions?</span>
