@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, Suspense, useEffect, useState } from "react";
-import { FiExternalLink, FiLock, FiLogOut } from "react-icons/fi";
+import { FiExternalLink, FiLock, FiLogOut, FiMenu } from "react-icons/fi";
 import { Link, Outlet } from "react-router-dom";
 import { apiClient } from "../../shared/apiClient";
 import { LoadingScreen } from "../../shared/Loading";
@@ -16,6 +16,7 @@ export function DashboardLayout() {
   const setAdminKey = useDraftStore((state) => state.setAdminKey);
   const clearAdminKey = useDraftStore((state) => state.clearAdminKey);
   const hasAdminKey = adminKey.length > 0;
+  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
     setDocumentTitle(siteConfig.dashboardPageName);
@@ -41,26 +42,29 @@ export function DashboardLayout() {
     <div className={`admin-dashboard dashboard-theme-${resolvedTheme}`}>
       <header className="admin-header">
         <div className="admin-header__brand">
+          <button type="button" className="admin-header__nav-toggle" onClick={() => setNavOpen(true)} aria-label="Open navigation">
+            <FiMenu aria-hidden />
+          </button>
           <span className="admin-header__mark">EJ</span>
           <span className="admin-header__name">Operations Center</span>
           <span className="admin-tag">admin</span>
         </div>
         <div className="admin-header__actions">
-          <Link className="admin-header__link" to="/" target="_blank" rel="noreferrer">
-            View live site <FiExternalLink aria-hidden />
+          <Link className="admin-header__link" to="/" target="_blank" rel="noreferrer" aria-label="View live site">
+            <span className="admin-header__link-text">View live site</span> <FiExternalLink aria-hidden />
           </Link>
           <span className="admin-status-pill">
             <span className="admin-status-pill__dot" />
             Published — changes go live instantly
           </span>
-          <button className="admin-button admin-button--secondary" type="button" onClick={() => void lockDashboard()}>
-            <FiLogOut aria-hidden /> Sign out
+          <button className="admin-button admin-button--secondary" type="button" onClick={() => void lockDashboard()} aria-label="Sign out">
+            <FiLogOut aria-hidden /> <span className="admin-button__label">Sign out</span>
           </button>
         </div>
       </header>
 
       <div className="admin-shell-body">
-        <DashboardNav />
+        <DashboardNav mobileOpen={navOpen} onCloseMobile={() => setNavOpen(false)} />
 
         <main className="admin-main">
           <div className="admin-main__inner">

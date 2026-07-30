@@ -23,9 +23,11 @@ export function SelectDropdown<T extends string>({
   const menuRef = useRef<HTMLUListElement>(null);
   const selected = options.find((option) => option.value === value);
 
-  // The dashboard scopes its color tokens to `.admin-dashboard` rather than `:root`,
-  // so a menu portaled straight to `document.body` would render with no theme colors.
-  const portalTarget = containerRef.current?.closest(".admin-dashboard") ?? document.body;
+  // Both the dashboard and the public/coming-soon pages scope their color tokens to a
+  // wrapper class (`.admin-dashboard`, `.coming-soon-page`) rather than `:root`, so a menu
+  // portaled straight to `document.body` would render with no theme colors (transparent).
+  const portalTarget =
+    containerRef.current?.closest(".admin-dashboard") ?? containerRef.current?.closest(".coming-soon-page") ?? document.body;
 
   useEffect(() => {
     if (!open) {

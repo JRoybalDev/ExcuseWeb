@@ -379,38 +379,38 @@ function CalendarRow({
 
   return (
     <tr className={rowClass}>
-      <td>
+      <td data-label="Date">
         <input type="date" value={entry.uploadDate} onChange={(event) => onChange({ uploadDate: event.target.value })} />
       </td>
-      <td>
+      <td data-label="Slot">
         <SelectDropdown
           value={entry.slot}
           options={calendarSlotValues.map((slot) => ({ value: slot, label: calendarSlotLabels[slot] }))}
           onChange={(slot) => onChange({ slot })}
         />
       </td>
-      <td>
+      <td data-label="Title">
         <input value={entry.title} placeholder="untitled" onChange={(event) => onChange({ title: event.target.value })} />
         {isDirty ? <span className="schedule-row__unsaved">Unsaved</span> : null}
       </td>
-      <td>
+      <td data-label="Priority">
         <SelectDropdown
           value={entry.priority}
           options={calendarPriorityValues.map((priority) => ({ value: priority, label: calendarPriorityLabels[priority] }))}
           onChange={(priority) => onChange({ priority })}
         />
       </td>
-      <td>
+      <td data-label="Status">
         <SelectDropdown
           value={entry.status}
           options={calendarStatusValues.map((status) => ({ value: status, label: calendarStatusLabels[status] }))}
           onChange={(status) => onChange({ status: status as CalendarStatus })}
         />
       </td>
-      <td className="calendar-table__pkg">
+      <td className="calendar-table__pkg" data-label="Packaging">
         <input type="checkbox" checked={entry.packagingDone} onChange={(event) => onChange({ packagingDone: event.target.checked })} />
       </td>
-      <td>
+      <td data-label="Clips">
         <input
           type="number"
           min={0}
@@ -419,10 +419,10 @@ function CalendarRow({
           onChange={(event) => onChange({ expectedClipCount: Number(event.target.value) || 0 })}
         />
       </td>
-      <td>
+      <td data-label="Notes">
         <input value={entry.notes} onChange={(event) => onChange({ notes: event.target.value })} />
       </td>
-      <td className="calendar-table__actions">
+      <td className="calendar-table__actions" data-label="Actions">
         <Link className="schedule-row__edit" to={`/dashboard/calendar/${entry.id}/checklist`} aria-label="Open production checklist">
           <FiCheckSquare aria-hidden />
         </Link>
