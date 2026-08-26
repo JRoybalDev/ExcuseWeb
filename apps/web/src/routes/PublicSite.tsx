@@ -1,6 +1,6 @@
 import { scheduleDayLabels, scheduleEntryTypeLabels, type ScheduleDay, type ScheduleEntry } from "@fullstack-template/schema";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { FaDiscord, FaInstagram, FaTiktok, FaTwitch, FaTwitter, FaYoutube } from "react-icons/fa";
 import { FiArrowRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
@@ -139,10 +139,27 @@ export function PublicSite() {
     setSiteFavicon();
   }, []);
 
+  const paddockCardRef = useRef<HTMLDivElement>(null);
+
   const schedule = useQuery({
     queryKey: ["schedule"],
     queryFn: () => apiClient.schedule.list()
   });
+
+  useLayoutEffect(() => {
+    function updatePaddockStickyTop() {
+      const card = paddockCardRef.current;
+      if (!card) {
+        return;
+      }
+      const top = Math.max(0, (window.innerHeight - card.offsetHeight) / 2);
+      card.style.setProperty("--paddock-sticky-top", `${top}px`);
+    }
+
+    updatePaddockStickyTop();
+    window.addEventListener("resize", updatePaddockStickyTop);
+    return () => window.removeEventListener("resize", updatePaddockStickyTop);
+  }, [schedule.data]);
 
   const latestVideos = useQuery({
     queryKey: ["youtube", "latest"],
@@ -231,7 +248,7 @@ export function PublicSite() {
               )}
             </div>
 
-            <div className="paddock-card">
+            <div className="paddock-card" ref={paddockCardRef}>
               <span className="paddock-card__label">Join the</span>
               {QR_CODE_URL ? (
                 <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">

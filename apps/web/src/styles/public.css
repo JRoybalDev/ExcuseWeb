@@ -286,9 +286,15 @@
   flex-shrink: 0;
   gap: 12px;
   justify-content: center;
+  max-height: 520px;
   min-height: 220px;
   padding: 18px;
+  position: sticky;
   text-align: center;
+  /* --paddock-sticky-top is set in JS to (viewport height - card height) / 2:
+     percentage `top` values don't reliably center a sticky item whose
+     containing block (.schedule-layout) has an auto/content-based height. */
+  top: var(--paddock-sticky-top, 24px);
   width: 220px;
 }
 
@@ -344,6 +350,8 @@
   }
 
   .paddock-card {
+    max-height: none;
+    position: static;
     width: 100%;
   }
 }
