@@ -1,4 +1,4 @@
-import { ScheduleEntryDraftSchema, scheduleDayValues, type ScheduleDay } from "@fullstack-template/schema";
+import { ScheduleEntryDraftSchema, scheduleDayValues } from "@fullstack-template/schema";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { scheduleEntries, uploads } from "../../db/schema.ts";
@@ -14,11 +14,6 @@ export const scheduleRoute = new Hono<{ Variables: AppVariables }>();
 
 function sortByDay<T extends { dayOfWeek: string }>(rows: T[]) {
   return [...rows].sort((a, b) => scheduleDayValues.indexOf(a.dayOfWeek as (typeof scheduleDayValues)[number]) - scheduleDayValues.indexOf(b.dayOfWeek as (typeof scheduleDayValues)[number]));
-}
-
-async function findByDay(dayOfWeek: ScheduleDay) {
-  const [row] = await db.select().from(scheduleEntries).where(eq(scheduleEntries.dayOfWeek, dayOfWeek)).limit(1);
-  return row;
 }
 
 async function deleteUploadById(uploadId: string) {
@@ -46,11 +41,6 @@ scheduleRoute.post("/", requireAdminKey, async (c) => {
     return fail(c, "Invalid schedule entry payload", 400, { code: "SCHEDULE_ENTRY_INVALID", details: parsed.error.flatten() });
   }
 
-  const existing = await findByDay(parsed.data.dayOfWeek);
-  if (existing) {
-    return fail(c, "That day already has a scheduled entry. Edit or delete it first.", 409, { code: "SCHEDULE_DAY_TAKEN" });
-  }
-
   const [row] = await db
     .insert(scheduleEntries)
     .values({ ...parsed.data, updatedAt: new Date() })
@@ -70,11 +60,6 @@ scheduleRoute.put("/:id", requireAdminKey, async (c) => {
 
   if (!parsed.success) {
     return fail(c, "Invalid schedule entry payload", 400, { code: "SCHEDULE_ENTRY_INVALID", details: parsed.error.flatten() });
-  }
-
-  const existing = await findByDay(parsed.data.dayOfWeek);
-  if (existing && existing.id !== id) {
-    return fail(c, "That day already has a scheduled entry. Edit or delete it first.", 409, { code: "SCHEDULE_DAY_TAKEN" });
   }
 
   const [before] = await db.select().from(scheduleEntries).where(eq(scheduleEntries.id, id)).limit(1);

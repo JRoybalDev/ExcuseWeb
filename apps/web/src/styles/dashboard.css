@@ -396,6 +396,21 @@
   padding: 24px;
 }
 
+.schedule-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.schedule-day-group__heading {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
 .schedule-row {
   align-items: center;
   display: grid;

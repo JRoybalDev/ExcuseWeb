@@ -99,6 +99,13 @@
       "when": 1785192467194,
       "tag": "0013_add_build_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1787773462887,
+      "tag": "0014_remove_schedule_day_unique",
+      "breakpoints": true
     }
   ]
 }

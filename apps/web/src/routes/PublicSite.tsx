@@ -1,4 +1,4 @@
-import { scheduleDayLabels, scheduleEntryTypeLabels, type ScheduleDay } from "@fullstack-template/schema";
+import { scheduleDayLabels, scheduleEntryTypeLabels, type ScheduleDay, type ScheduleEntry } from "@fullstack-template/schema";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FaDiscord, FaInstagram, FaTiktok, FaTwitch, FaTwitter, FaYoutube } from "react-icons/fa";
@@ -90,7 +90,16 @@ function nextOccurrenceInstant(day: ScheduleDay, time: string, now: Date): { ins
     STREAM_TIMEZONE
   );
 
+  // If this week's occurrence has already passed (e.g. today's time already elapsed), roll to next week's.
+  if (instant.getTime() < now.getTime()) {
+    return { instant: new Date(instant.getTime() + 7 * 24 * 60 * 60 * 1000), hasTime };
+  }
+
   return { instant, hasTime };
+}
+
+function localDateKey(date: Date): string {
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
 
 function formatDate(date: Date) {
@@ -99,6 +108,29 @@ function formatDate(date: Date) {
 
 function formatLocalTime(instant: Date): string {
   return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(instant);
+}
+
+function scheduleEntryIcon(type: ScheduleEntry["type"]) {
+  return type === "twitch_stream" ? FaTwitch : FaYoutube;
+}
+
+type ScheduledItem = { entry: ScheduleEntry; instant: Date; hasTime: boolean };
+type ScheduleDayGroup = { dateKey: string; headerInstant: Date; items: ScheduledItem[] };
+
+function groupScheduleByDate(items: ScheduledItem[]): ScheduleDayGroup[] {
+  const groups = new Map<string, ScheduleDayGroup>();
+
+  for (const item of items) {
+    const dateKey = localDateKey(item.instant);
+    const group = groups.get(dateKey);
+    if (group) {
+      group.items.push(item);
+    } else {
+      groups.set(dateKey, { dateKey, headerInstant: item.instant, items: [item] });
+    }
+  }
+
+  return [...groups.values()].sort((a, b) => a.headerInstant.getTime() - b.headerInstant.getTime());
 }
 
 export function PublicSite() {
@@ -123,10 +155,11 @@ export function PublicSite() {
   });
 
   const now = new Date();
-  const scheduledEntries = (schedule.data ?? [])
+  const scheduledItems = (schedule.data ?? [])
     .map((entry) => ({ entry, ...nextOccurrenceInstant(entry.dayOfWeek, entry.time, now) }))
     .sort((a, b) => a.instant.getTime() - b.instant.getTime());
-  const hasScheduleEntries = scheduledEntries.length > 0;
+  const scheduleDayGroups = groupScheduleByDate(scheduledItems);
+  const hasScheduleEntries = scheduleDayGroups.length > 0;
 
   return (
     <div className="coming-soon-page">
@@ -153,27 +186,41 @@ export function PublicSite() {
           <div className="schedule-layout">
             <div className="schedule-grid">
               {hasScheduleEntries ? (
-                scheduledEntries.map(({ entry, instant, hasTime }) => {
-                  const localDay = jsDayIndexToScheduleDay[instant.getDay()]!;
+                scheduleDayGroups.map(({ dateKey, headerInstant, items }) => {
+                  const localDay = jsDayIndexToScheduleDay[headerInstant.getDay()]!;
 
                   return (
-                    <div key={entry.id} className="schedule-day-card">
+                    <div key={dateKey} className="schedule-day-card">
                       <div className="schedule-day-header">
                         <span className="schedule-day-abbr">{scheduleDayLabels[localDay]}</span>
                         <span className="schedule-day-meta">
-                          <span>{formatDate(instant)}</span>
-                          {hasTime ? <span>{formatLocalTime(instant)}</span> : null}
+                          <span>{formatDate(headerInstant)}</span>
                         </span>
                       </div>
-                      {entry.title ? (
-                        <div className="schedule-day-body">
-                          <p className="schedule-day-entry-title">{entry.title}</p>
-                          <div className="schedule-day-thumb">
-                            {entry.thumbnailUrl ? <img src={entry.thumbnailUrl} alt="" /> : null}
-                          </div>
-                          <span className="schedule-day-badge">{scheduleEntryTypeLabels[entry.type].toUpperCase()}</span>
-                        </div>
-                      ) : null}
+                      <div className="schedule-day-body">
+                        {items.map(({ entry, instant, hasTime }) => {
+                          if (!entry.title) {
+                            return null;
+                          }
+
+                          const EntryIcon = scheduleEntryIcon(entry.type);
+
+                          return (
+                            <div key={entry.id} className="schedule-day-item">
+                              {hasTime ? <span className="schedule-day-item-time">{formatLocalTime(instant)}</span> : null}
+                              <p className="schedule-day-entry-title">{entry.title}</p>
+                              <div className={entry.thumbnailUrl ? "schedule-day-thumb" : "schedule-day-thumb schedule-day-thumb--empty"}>
+                                {entry.thumbnailUrl ? (
+                                  <img src={entry.thumbnailUrl} alt="" />
+                                ) : (
+                                  <EntryIcon className="schedule-day-thumb-icon" aria-hidden />
+                                )}
+                              </div>
+                              <span className="schedule-day-badge">{scheduleEntryTypeLabels[entry.type].toUpperCase()}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })

@@ -30,7 +30,25 @@ function entryToDraft(entry: ScheduleEntry): DraftEntry {
 }
 
 function sortByDay(rows: ScheduleEntry[]) {
-  return [...rows].sort((a, b) => scheduleDayValues.indexOf(a.dayOfWeek) - scheduleDayValues.indexOf(b.dayOfWeek));
+  return [...rows].sort((a, b) => {
+    const dayDiff = scheduleDayValues.indexOf(a.dayOfWeek) - scheduleDayValues.indexOf(b.dayOfWeek);
+    return dayDiff !== 0 ? dayDiff : a.time.localeCompare(b.time);
+  });
+}
+
+function groupByDay(rows: ScheduleEntry[]): Array<{ dayOfWeek: ScheduleDay; entries: ScheduleEntry[] }> {
+  const groups: Array<{ dayOfWeek: ScheduleDay; entries: ScheduleEntry[] }> = [];
+
+  for (const entry of rows) {
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.dayOfWeek === entry.dayOfWeek) {
+      lastGroup.entries.push(entry);
+    } else {
+      groups.push({ dayOfWeek: entry.dayOfWeek, entries: [entry] });
+    }
+  }
+
+  return groups;
 }
 
 export function ScheduleTab() {
@@ -206,20 +224,25 @@ export function ScheduleTab() {
       </div>
 
       <div className="schedule-editor-card">
-        {entries.map((entry) => (
-          <ScheduleRow
-            key={entry.id}
-            entry={entry}
-            isEditing={editingIds.has(entry.id)}
-            isDirty={dirtyIds.has(entry.id)}
-            onToggleEdit={() => toggleRowEditing(entry.id)}
-            onChangeDay={(dayOfWeek) => updateRowField(entry.id, { dayOfWeek })}
-            onChangeTime={(time) => updateRowField(entry.id, { time })}
-            onChangeType={(type) => updateRowField(entry.id, { type })}
-            onChangeTitle={(title) => updateRowField(entry.id, { title })}
-            onUploadThumbnail={(file) => void handleRowThumbnail(entry.id, file)}
-            onDelete={() => deleteEntry.mutate(entry.id)}
-          />
+        {groupByDay(entries).map((group) => (
+          <div key={group.dayOfWeek} className="schedule-day-group">
+            <h3 className="schedule-day-group__heading">{scheduleDayLabels[group.dayOfWeek]}</h3>
+            {group.entries.map((entry) => (
+              <ScheduleRow
+                key={entry.id}
+                entry={entry}
+                isEditing={editingIds.has(entry.id)}
+                isDirty={dirtyIds.has(entry.id)}
+                onToggleEdit={() => toggleRowEditing(entry.id)}
+                onChangeDay={(dayOfWeek) => updateRowField(entry.id, { dayOfWeek })}
+                onChangeTime={(time) => updateRowField(entry.id, { time })}
+                onChangeType={(type) => updateRowField(entry.id, { type })}
+                onChangeTitle={(title) => updateRowField(entry.id, { title })}
+                onUploadThumbnail={(file) => void handleRowThumbnail(entry.id, file)}
+                onDelete={() => deleteEntry.mutate(entry.id)}
+              />
+            ))}
+          </div>
         ))}
 
         {addingEntry ? (

@@ -1,0 +1,1 @@
+ALTER TABLE "schedule_entries" DROP CONSTRAINT "schedule_entries_day_of_week_unique";

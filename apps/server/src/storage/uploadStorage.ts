@@ -91,7 +91,7 @@ async function storeCloudinaryUpload(file: File, folder: string): Promise<Stored
     result.resource_type === "image"
       ? cloudinary.url(result.public_id, {
           secure: true,
-          transformation: [{ width: 480, height: 480, crop: "fill", quality: "auto", fetch_format: "auto" }]
+          transformation: [{ width: 640, crop: "limit", quality: "auto", fetch_format: "auto" }]
         })
       : "";
 

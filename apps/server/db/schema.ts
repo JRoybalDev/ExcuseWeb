@@ -47,7 +47,7 @@ export const uploads = pgTable("uploads", {
 
 export const scheduleEntries = pgTable("schedule_entries", {
   id: uuid("id").primaryKey().defaultRandom(),
-  dayOfWeek: text("day_of_week").$type<ScheduleDay>().notNull().unique(),
+  dayOfWeek: text("day_of_week").$type<ScheduleDay>().notNull(),
   time: text("time").notNull().default(""),
   type: text("type").$type<ScheduleEntryType>().notNull().default("video"),
   title: text("title").notNull().default(""),

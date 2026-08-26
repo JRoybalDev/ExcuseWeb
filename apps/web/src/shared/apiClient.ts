@@ -29,6 +29,7 @@ import {
   type WeeklyRhythmUpdateInput
 } from "@fullstack-template/schema";
 import { apiJson, withAdminKey } from "./api";
+import { downscaleImageIfNeeded } from "./imageResize";
 
 export type YouTubeVideo = {
   id: string;
@@ -484,7 +485,7 @@ export const apiClient = {
 
     async create(adminKey: string, file: File) {
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", await downscaleImageIfNeeded(file));
 
       return UploadSchema.parse(
         await apiJson(
@@ -499,7 +500,7 @@ export const apiClient = {
 
     async replace(adminKey: string, uploadId: string, file: File) {
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", await downscaleImageIfNeeded(file));
 
       return UploadSchema.parse(
         await apiJson(
