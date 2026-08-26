@@ -4,8 +4,9 @@ import { useEffect } from "react";
 import { FaDiscord, FaInstagram, FaTiktok, FaTwitch, FaTwitter, FaYoutube } from "react-icons/fa";
 import { FiArrowRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import { apiClient, type YouTubeVideo } from "../shared/apiClient";
+import { apiClient } from "../shared/apiClient";
 import { setDocumentTitle, setSiteFavicon, siteConfig } from "../shared/siteConfig";
+import { VideoSection } from "../shared/VideoSection";
 
 const CHANNEL_NAME = "ExcuseMeImJack";
 
@@ -206,31 +207,5 @@ export function PublicSite() {
         <VideoSection title="Popular Videos" videos={popularVideos.data} isLoading={popularVideos.isLoading} error={popularVideos.isError} />
       </div>
     </div>
-  );
-}
-
-function VideoSection({ title, videos, isLoading, error }: { title: string; videos?: YouTubeVideo[]; isLoading: boolean; error: boolean }) {
-  return (
-    <section className="videos-section">
-      <h2 className="videos-title">{title}</h2>
-      {isLoading ? <p className="videos-status">Loading videos...</p> : null}
-      {error ? <p className="videos-status videos-status--error">Unable to load videos right now.</p> : null}
-      {!isLoading && !error ? (
-        videos && videos.length > 0 ? (
-          <div className="videos-grid">
-            {videos.map((video) => (
-              <a key={video.id} className="video-card" href={video.url} target="_blank" rel="noopener noreferrer">
-                <div className="video-card__thumb">
-                  <img src={video.thumbnailUrl} alt="" />
-                </div>
-                <p className="video-card__title">{video.title}</p>
-              </a>
-            ))}
-          </div>
-        ) : (
-          <p className="videos-status">No videos found.</p>
-        )
-      ) : null}
-    </section>
   );
 }

@@ -8,6 +8,7 @@ import "./styles/branding.css";
 import "./styles/index.css";
 import "./styles/public.css";
 import "./styles/dashboard.css";
+import Share from "./routes/Share";
 
 const PublicSite = lazy(() => import("./routes/PublicSite").then((m) => ({ default: m.PublicSite })));
 const BuildRequests = lazy(() => import("./routes/BuildRequests").then((m) => ({ default: m.BuildRequests })));
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <PublicSite /> },
       { path: "build-requests", element: <BuildRequests /> },
+      { path: "share", element: <Share/>},
       {
         path: "dashboard",
         element: <DashboardLayout />,
