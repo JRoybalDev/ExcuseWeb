@@ -1,7 +1,6 @@
 import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
-import { Readable } from "node:stream";
 import type { UploadRow } from "../../db/schema.ts";
 import { env } from "../env.ts";
 import { logger } from "../logger.ts";
@@ -60,28 +59,19 @@ function assertCloudinaryConfigured() {
 async function uploadToCloudinary(file: File, folder: string): Promise<UploadApiResponse> {
   assertCloudinaryConfigured();
 
+  // cloudinary.uploader.upload_stream's writable-stream request has a Bun `https` client
+  // incompatibility that silently drops the signed params for payloads over ~1MB, causing
+  // Cloudinary to reject the request as an unsigned upload. A base64 data URI through the
+  // regular (non-streaming) upload() call sidesteps that broken code path entirely.
   const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  const base64 = Buffer.from(arrayBuffer).toString("base64");
+  const dataUri = `data:${file.type || "application/octet-stream"};base64,${base64}`;
 
-  return new Promise((resolve, reject) => {
-    const upload = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: "auto",
-        use_filename: true,
-        unique_filename: true
-      },
-      (error, result) => {
-        if (error || !result) {
-          reject(error ?? new Error("Cloudinary upload failed."));
-          return;
-        }
-
-        resolve(result);
-      }
-    );
-
-    Readable.from(buffer).pipe(upload);
+  return cloudinary.uploader.upload(dataUri, {
+    folder,
+    resource_type: "auto",
+    use_filename: true,
+    unique_filename: true
   });
 }
 
