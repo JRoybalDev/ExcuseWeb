@@ -512,43 +512,6 @@
   width: 34px;
 }
 
-.schedule-row__done {
-  background: var(--surface);
-  border: 1px solid var(--line-2);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 700;
-  height: 34px;
-  width: 100%;
-}
-
-.schedule-row input {
-  background: var(--surface);
-  border: 1px solid var(--line-2);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  padding: 8px 10px;
-  width: 100%;
-}
-
-.schedule-row__day .select-dropdown__trigger {
-  background: var(--accent-wash);
-  font-family: var(--font-head);
-  font-weight: 800;
-  justify-content: center;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.schedule-row__day .select-dropdown__caret {
-  margin-left: 8px;
-}
-
 .select-dropdown {
   position: relative;
   width: 100%;

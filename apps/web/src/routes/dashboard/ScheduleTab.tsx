@@ -381,25 +381,54 @@ function ScheduleRow({
   }
 
   return (
-    <div className="schedule-row">
-      <SelectDropdown
-        className="schedule-row__day"
-        value={entry.dayOfWeek}
-        options={scheduleDayValues.map((day) => ({ value: day, label: scheduleDayLabels[day] }))}
-        onChange={onChangeDay}
-      />
-      <input type="time" value={entry.time} onChange={(event) => onChangeTime(event.target.value)} />
-      <SelectDropdown
-        value={entry.type}
-        options={scheduleEntryTypeValues.map((type) => ({ value: type, label: scheduleEntryTypeLabels[type] }))}
-        onChange={onChangeType}
-      />
-      <input value={entry.title} onChange={(event) => onChangeTitle(event.target.value)} placeholder="Title" />
-      <ThumbnailSlot url={entry.thumbnailUrl} onUpload={onUploadThumbnail} compact />
-      <button className="schedule-row__done" type="button" aria-label="Done editing" onClick={onToggleEdit}>
-        Done
-      </button>
-    </div>
+    <form
+      className="schedule-add-form"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onToggleEdit();
+      }}
+    >
+      <div className="schedule-add-form__row">
+        <label className="schedule-add-form__field schedule-add-form__field--day">
+          <span>Day</span>
+          <SelectDropdown
+            value={entry.dayOfWeek}
+            options={scheduleDayValues.map((day) => ({ value: day, label: scheduleDayLabels[day] }))}
+            onChange={onChangeDay}
+          />
+        </label>
+        <label className="schedule-add-form__field schedule-add-form__field--time">
+          <span>Time</span>
+          <input type="time" value={entry.time} onChange={(event) => onChangeTime(event.target.value)} />
+        </label>
+        <label className="schedule-add-form__field schedule-add-form__field--type">
+          <span>Type</span>
+          <SelectDropdown
+            value={entry.type}
+            options={scheduleEntryTypeValues.map((type) => ({ value: type, label: scheduleEntryTypeLabels[type] }))}
+            onChange={onChangeType}
+          />
+        </label>
+      </div>
+      <label className="schedule-add-form__field schedule-add-form__field--title">
+        <span>Title</span>
+        <input placeholder="Episode title" value={entry.title} onChange={(event) => onChangeTitle(event.target.value)} />
+      </label>
+      <div className="schedule-add-form__footer">
+        <div className="schedule-add-form__field schedule-add-form__field--thumb">
+          <span>Thumbnail</span>
+          <ThumbnailSlot url={entry.thumbnailUrl} onUpload={onUploadThumbnail} />
+        </div>
+        <div className="schedule-add-form__actions">
+          <button className="admin-button admin-button--secondary" type="button" onClick={onDelete}>
+            <FiTrash2 aria-hidden /> Delete
+          </button>
+          <button className="admin-button admin-button--primary" type="submit">
+            Done
+          </button>
+        </div>
+      </div>
+    </form>
   );
 }
 
